@@ -1,0 +1,9 @@
+node_modules/
+__pycache__/
+*.pyc
+.env
+*.log
+frontend/dist/
+frontend/.next/
+backend/.venv/
+backend/.venv_local/
