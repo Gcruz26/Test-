@@ -14,7 +14,7 @@ class InterpreterStatus(str, Enum):
     ON_HOLD = "On Hold"
     FULLY_ONBOARDED = "Fully Onboarded"
     TERMINATED = "Terminated"
-    DEACTIVED = "Deactived"
+    DEACTIVATED = "Deactivated"
     RESIGNED = "Resigned"
 
 

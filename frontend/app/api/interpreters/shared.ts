@@ -9,9 +9,9 @@ import type {
 import { createSupabaseAdminClient } from "../../../src/lib/supabase/admin";
 
 export const paymentFrequencyOptions = ["Weekly", "Biweekly", "Monthly"] as const;
-export const statusOptions = ["Active", "Inactive", "On Hold", "Fully Onboarded", "Terminated", "Deactived", "Resigned"] as const;
+export const statusOptions = ["Active", "Inactive", "On Hold", "Fully Onboarded", "Terminated", "Deactivated", "Resigned"] as const;
 export const activeStatuses = ["Active", "Fully Onboarded"] as const;
-export const terminatedStatuses = ["Inactive", "Terminated", "Deactived", "Resigned"] as const;
+export const terminatedStatuses = ["Inactive", "Terminated", "Deactivated", "Resigned"] as const;
 export const defaultInterpreterPageSize = 25;
 export const maxInterpreterPageSize = 100;
 

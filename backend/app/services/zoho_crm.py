@@ -6,7 +6,6 @@ from decimal import Decimal, InvalidOperation
 from typing import Any
 
 import requests
-from fastapi import HTTPException, status
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
@@ -265,18 +264,7 @@ class ZohoInterpreterSyncService:
     def _sync_record(self, record: dict[str, Any]) -> str:
         try:
             normalized = self._map_record(record)
-            interpreter = (
-                self.db.query(Interpreter)
-                .filter(
-                    (Interpreter.zoho_contact_id == normalized["zoho_contact_id"])
-                    | (Interpreter.employee_id == normalized["employee_id"])
-                    | (Interpreter.email == normalized["email"])
-                    | (Interpreter.propio_interpreter_id == normalized["propio_interpreter_id"])
-                    | (Interpreter.big_interpreter_id == normalized["big_interpreter_id"])
-                    | (Interpreter.big_interpreter_id == normalized["cloudbreak_id"])
-                )
-                .first()
-            )
+            interpreter = self._find_matching_interpreter(normalized)
             created = interpreter is None
             if interpreter is None:
                 interpreter = Interpreter(sync_status="pending")
@@ -308,6 +296,44 @@ class ZohoInterpreterSyncService:
             self.db.rollback()
             self._record_sync_error(record, str(exc))
             return "failed"
+
+    def _find_matching_interpreter(self, normalized: dict[str, Any]) -> Interpreter | None:
+        """Find an existing interpreter using prioritized matching.
+
+        Tries zoho_contact_id first, then employee_id, then email.
+        Falls back to propio/big/cloudbreak ids.  If any single lookup
+        returns multiple rows, logs a warning and returns the first result.
+        """
+        lookup_steps: list[tuple[str, Any]] = []
+
+        if normalized.get("zoho_contact_id"):
+            lookup_steps.append(("zoho_contact_id", Interpreter.zoho_contact_id == normalized["zoho_contact_id"]))
+        if normalized.get("employee_id"):
+            lookup_steps.append(("employee_id", Interpreter.employee_id == normalized["employee_id"]))
+        if normalized.get("email"):
+            lookup_steps.append(("email", Interpreter.email == normalized["email"]))
+        if normalized.get("propio_interpreter_id"):
+            lookup_steps.append(("propio_interpreter_id", Interpreter.propio_interpreter_id == normalized["propio_interpreter_id"]))
+        if normalized.get("big_interpreter_id"):
+            lookup_steps.append(("big_interpreter_id", Interpreter.big_interpreter_id == normalized["big_interpreter_id"]))
+        if normalized.get("cloudbreak_id"):
+            lookup_steps.append(("cloudbreak_id", Interpreter.big_interpreter_id == normalized["cloudbreak_id"]))
+
+        for field_name, condition in lookup_steps:
+            matches = self.db.query(Interpreter).filter(condition).all()
+            if len(matches) == 1:
+                return matches[0]
+            if len(matches) > 1:
+                logger.warning(
+                    "Multiple interpreters matched on %s=%r — using first (id=%s). IDs found: %s",
+                    field_name,
+                    getattr(condition.right, "value", "?"),
+                    matches[0].id,
+                    [m.id for m in matches],
+                )
+                return matches[0]
+
+        return None
 
     def _record_sync_error(self, record: dict[str, Any], message: str) -> None:
         zoho_contact_id = str(record.get("id") or "")
@@ -373,9 +399,8 @@ def ensure_admin_settings(settings: ZohoCRMSetting) -> None:
         if not getattr(settings, key)
     ]
     if missing:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Zoho CRM settings are incomplete: {', '.join(missing)}",
+        raise ZohoCRMServiceError(
+            f"Zoho CRM settings are incomplete: {', '.join(missing)}"
         )
 
 
@@ -469,8 +494,8 @@ def _parse_status(value: Any) -> InterpreterStatus:
 def _parse_rate(value: Any) -> Decimal:
     try:
         return Decimal(str(value))
-    except (InvalidOperation, TypeError, ValueError):
-        raise ZohoCRMServiceError(f"Invalid rate value: {value}")
+    except (InvalidOperation, TypeError, ValueError) as exc:
+        raise ZohoCRMServiceError(f"Invalid rate value: {value}") from exc
 
 
 def _extract_contact_id(payload: dict[str, Any]) -> str | None:
