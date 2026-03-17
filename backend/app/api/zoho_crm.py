@@ -1,9 +1,10 @@
 from typing import Any
 
-from fastapi import APIRouter, Body, Depends, HTTPException, status
+from fastapi import APIRouter, Body, Depends, Header, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.api.deps import require_roles
+from app.core.config import settings as app_settings
 from app.db.session import get_db
 from app.models.user import User
 from app.schemas.zoho_integration import (
@@ -64,7 +65,10 @@ def full_sync(
     _: User = Depends(require_roles({"Admin"})),
 ):
     settings = get_or_create_settings(db)
-    ensure_admin_settings(settings)
+    try:
+        ensure_admin_settings(settings)
+    except ZohoCRMServiceError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc))
 
     try:
         summary = ZohoInterpreterSyncService(db, settings).full_sync()
@@ -80,9 +84,19 @@ def full_sync(
 def webhook_sync(
     payload: dict[str, Any] = Body(default_factory=dict),
     db: Session = Depends(get_db),
+    x_webhook_secret: str = Header(default=""),
 ):
+    if (
+        not app_settings.zoho_webhook_secret
+        or x_webhook_secret != app_settings.zoho_webhook_secret
+    ):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Invalid webhook secret")
+
     settings = get_or_create_settings(db)
-    ensure_admin_settings(settings)
+    try:
+        ensure_admin_settings(settings)
+    except ZohoCRMServiceError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc))
 
     try:
         result = ZohoInterpreterSyncService(db, settings).sync_webhook_payload(payload)

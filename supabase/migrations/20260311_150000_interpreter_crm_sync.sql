@@ -7,5 +7,5 @@ alter table public.interpreters
 
 alter type public.interpreter_status add value if not exists 'Fully Onboarded';
 alter type public.interpreter_status add value if not exists 'Terminated';
-alter type public.interpreter_status add value if not exists 'Deactived';
+alter type public.interpreter_status add value if not exists 'Deactivated';
 alter type public.interpreter_status add value if not exists 'Resigned';

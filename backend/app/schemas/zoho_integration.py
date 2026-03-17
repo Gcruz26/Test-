@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_serializer, model_validator
 
 
 DEFAULT_FIELD_MAPPING = {
@@ -53,6 +53,16 @@ class ZohoCRMSettingsResponse(BaseModel):
     last_full_sync_at: datetime | None = None
     last_sync_status: str = "not_configured"
     last_sync_error_message: str | None = None
+
+    @staticmethod
+    def _mask(value: str | None) -> str:
+        if not value:
+            return ""
+        return f"{'*' * 6}{value[-4:]}" if len(value) >= 4 else "*" * 6
+
+    @field_serializer("client_secret", "refresh_token")
+    def mask_sensitive_fields(self, value: str | None) -> str:
+        return self._mask(value)
 
 
 class IntegrationLogItem(BaseModel):
