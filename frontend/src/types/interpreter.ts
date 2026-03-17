@@ -4,7 +4,7 @@ export type InterpreterStatus =
   | "On Hold"
   | "Fully Onboarded"
   | "Terminated"
-  | "Deactived"
+  | "Deactivated"
   | "Resigned";
 export type PaymentFrequency = "Weekly" | "Biweekly" | "Monthly";
 
@@ -107,10 +107,18 @@ export interface MercuryRecipientSyncResponse {
   errors: string[];
 }
 
+export interface InterpreterStatusCounts {
+  active: number;
+  on_hold: number;
+  terminated: number;
+  not_synced: number;
+}
+
 export interface InterpreterListResponse {
   items: InterpreterItem[];
   total: number;
   page: number;
   page_size: number;
   total_pages: number;
+  status_counts: InterpreterStatusCounts;
 }
