@@ -5,5 +5,11 @@ __pycache__/
 *.log
 frontend/dist/
 frontend/.next/
+frontend/cookies.txt
+frontend/tsconfig.tsbuildinfo
 backend/.venv/
 backend/.venv_local/
+backend/alfa_processing.db
+supabase/.temp/
+uploads/*
+!uploads/.gitkeep
