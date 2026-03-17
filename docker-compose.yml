@@ -14,6 +14,7 @@ services:
       - ./uploads:/workspace/uploads
     ports:
       - "8000:8000"
+    restart: unless-stopped
 
   frontend:
     build: ./frontend

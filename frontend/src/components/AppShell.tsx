@@ -3,7 +3,7 @@
 import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { Bell, Search, Sparkles } from "lucide-react";
+import { Bell } from "lucide-react";
 import { AppUserContext } from "@/hooks/use-app-user";
 import { useSidebarCollapse } from "@/hooks/use-sidebar-collapse";
 import { fetchCurrentUser } from "../api/auth";
@@ -27,7 +27,7 @@ export function AppShell({ children }: Readonly<{ children: ReactNode }>) {
   }, [pathname, router]);
 
   if (loading) {
-    return <div className="loading">Loading...</div>;
+    return <div className="loading">Loading\u2026</div>;
   }
 
   if (!user) {
@@ -42,20 +42,12 @@ export function AppShell({ children }: Readonly<{ children: ReactNode }>) {
           <header className="workspace-topbar">
             <div>
               <p className="workspace-topbar-label">Alfa Processing Platform</p>
-              <strong>{pathname === "/dashboard" ? "Operations workspace" : "Module workspace"}</strong>
+              <strong>{pathname === "/dashboard" ? "Dashboard" : "Operations"}</strong>
             </div>
             <div className="workspace-topbar-tools">
-              <div className="workspace-search">
-                <Search className="size-4" />
-                <span>Migration-ready UX layer</span>
-              </div>
-              <div className="workspace-chip">
-                <Sparkles className="size-4" />
-                Next.js shell
-              </div>
-              <div className="workspace-notify">
-                <Bell className="size-4" />
-              </div>
+              <button type="button" aria-label="Notifications" className="workspace-notify">
+                <Bell className="size-4" aria-hidden="true" />
+              </button>
             </div>
           </header>
           <main className="workspace-content">{children}</main>
