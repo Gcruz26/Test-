@@ -67,13 +67,13 @@ export function Sidebar({ user, isCollapsed, onToggleCollapse }: Props) {
                 <span>{user.email}</span>
               </div>
               <small>
-                <ShieldCheck className="size-3.5" />
+                <ShieldCheck className="size-3.5" aria-hidden="true" />
                 {user.role}
               </small>
             </>
           ) : (
             <small title={`${user.full_name} - ${user.role}`}>
-              <ShieldCheck className="size-3.5" />
+              <ShieldCheck className="size-3.5" aria-hidden="true" />
               {user.role}
             </small>
           )}
@@ -96,6 +96,7 @@ export function Sidebar({ user, isCollapsed, onToggleCollapse }: Props) {
         </nav>
       </div>
       <button
+        type="button"
         className="sidebar-v2-logout"
         onClick={handleLogout}
         title={isCollapsed ? "Logout" : undefined}

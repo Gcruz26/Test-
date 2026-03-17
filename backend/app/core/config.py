@@ -1,3 +1,4 @@
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -15,6 +16,26 @@ class Settings(BaseSettings):
     cors_origins: str = "http://localhost:5173,http://localhost:3000,http://127.0.0.1:5173,http://127.0.0.1:3000"
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
+
+    @field_validator("database_url")
+    @classmethod
+    def database_url_must_not_be_empty(cls, v: str) -> str:
+        if not v:
+            raise ValueError(
+                "database_url is empty. Set DATABASE_URL in your .env file "
+                "or as an environment variable."
+            )
+        return v
+
+    @field_validator("supabase_url")
+    @classmethod
+    def supabase_url_must_not_be_empty(cls, v: str) -> str:
+        if not v:
+            raise ValueError(
+                "supabase_url is empty. Set SUPABASE_URL in your .env file "
+                "or as an environment variable."
+            )
+        return v
 
     @property
     def cors_origins_list(self) -> list[str]:
