@@ -291,6 +291,7 @@ export function InterpreterManagementPage() {
     page: initialPage,
     page_size: initialPageSize,
     total_pages: 1,
+    status_counts: { active: 0, on_hold: 0, terminated: 0, not_synced: 0 },
   });
   const [meta, setMeta] = useState<InterpreterMetaResponse>({ clients: [], payment_frequency_options: [], status_options: [] });
   const [syncStatus, setSyncStatus] = useState<InterpreterSyncStatusResponse | null>(null);
@@ -324,6 +325,7 @@ export function InterpreterManagementPage() {
           page: interpreterResponse.page,
           page_size: interpreterResponse.page_size,
           total_pages: interpreterResponse.total_pages,
+          status_counts: interpreterResponse.status_counts,
         });
         setSyncStatus(syncStatusResponse);
       } catch (err) {
@@ -359,24 +361,22 @@ export function InterpreterManagementPage() {
     }
 
     const timeout = window.setTimeout(() => {
-      void refreshList(filters, 1, pagination.page_size);
+      refreshList(filters, 1, pagination.page_size).catch(() => setError("Search failed. Please try again."));
     }, searchDebounceMs);
 
     return () => window.clearTimeout(timeout);
   }, [filters.search]);
 
   const stats = useMemo(() => {
-    const activeStatuses = new Set(["Active", "Fully Onboarded"]);
-    const terminatedStatuses = new Set(["Inactive", "Terminated", "Deactived", "Resigned"]);
-
+    const counts = pagination.status_counts;
     return [
       { label: "Total Interpreters", value: pagination.total },
-      { label: "Active", value: interpreters.filter((item) => activeStatuses.has(item.status)).length },
-      { label: "On Hold", value: interpreters.filter((item) => item.status === "On Hold").length },
-      { label: "Terminated", value: interpreters.filter((item) => terminatedStatuses.has(item.status)).length },
-      { label: "Not Synced", value: interpreters.filter((item) => !item.zoho_contact_id || item.sync_status !== "synced").length },
+      { label: "Active", value: counts.active },
+      { label: "On Hold", value: counts.on_hold },
+      { label: "Terminated", value: counts.terminated },
+      { label: "Not Synced", value: counts.not_synced },
     ];
-  }, [interpreters, pagination.total]);
+  }, [pagination.total, pagination.status_counts]);
 
   const pageStart = pagination.total === 0 ? 0 : (pagination.page - 1) * pagination.page_size + 1;
   const pageEnd = pagination.total === 0 ? 0 : Math.min(pagination.total, pageStart + interpreters.length - 1);
@@ -425,6 +425,7 @@ export function InterpreterManagementPage() {
       page: response.page,
       page_size: response.page_size,
       total_pages: response.total_pages,
+      status_counts: response.status_counts,
     });
     setFilters(nextFilters);
     setSelectedRowIds([]);
@@ -564,7 +565,7 @@ export function InterpreterManagementPage() {
     setSelectedRowIds((current) => (current.includes(id) ? current.filter((itemId) => itemId !== id) : [...current, id]));
   }
 
-  function handlePlaceholderAction(message: string) {
+  function handleUnavailableAction(message: string) {
     setError("");
     setSuccess(message);
   }
@@ -789,11 +790,11 @@ export function InterpreterManagementPage() {
               <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
                 <div className="text-sm font-medium text-slate-700">{selectedRowIds.length} interpreter{selectedRowIds.length === 1 ? "" : "s"} selected</div>
                 <div className="flex flex-wrap items-center gap-2">
-                  <Button type="button" variant="outline" onClick={() => handlePlaceholderAction("Export selected will be wired once the bulk export flow is available.")}>
+                  <Button type="button" variant="outline" onClick={() => handleUnavailableAction("This feature is not yet available.")}>
                     <Download className="size-4" aria-hidden="true" />
                     Export selected
                   </Button>
-                  <Button type="button" variant="outline" onClick={() => handlePlaceholderAction("Bulk status changes are not wired yet.")}>
+                  <Button type="button" variant="outline" onClick={() => handleUnavailableAction("This feature is not yet available.")}>
                     Change status
                   </Button>
                   <Button type="button" variant="outline" onClick={() => setSelectedRowIds([])}>
@@ -1064,7 +1065,7 @@ export function InterpreterManagementPage() {
                                 className="inline-flex size-6 items-center justify-center rounded text-slate-400 hover:bg-slate-100 hover:text-slate-700 focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-1"
                                 aria-label="Change status"
                                 title="Change status"
-                                onClick={() => handlePlaceholderAction(`Status update for ${item.full_name} is not wired yet.`)}
+                                onClick={() => handleUnavailableAction(`Status update for ${item.full_name} is not yet available.`)}
                               >
                                 <UserX className="size-3.5" aria-hidden="true" />
                               </button>

@@ -4,11 +4,14 @@ import type {
   InterpreterItem,
   InterpreterListResponse,
   InterpreterPayload,
+  InterpreterStatusCounts,
 } from "../../../src/types/interpreter";
 import { createSupabaseAdminClient } from "../../../src/lib/supabase/admin";
 
 export const paymentFrequencyOptions = ["Weekly", "Biweekly", "Monthly"] as const;
 export const statusOptions = ["Active", "Inactive", "On Hold", "Fully Onboarded", "Terminated", "Deactived", "Resigned"] as const;
+export const activeStatuses = ["Active", "Fully Onboarded"] as const;
+export const terminatedStatuses = ["Inactive", "Terminated", "Deactived", "Resigned"] as const;
 export const defaultInterpreterPageSize = 25;
 export const maxInterpreterPageSize = 100;
 
@@ -164,25 +167,8 @@ export function mapInterpreterItem(interpreter: InterpreterRow, clientName: stri
   };
 }
 
-export async function listInterpreterItems(
-  filters: Partial<InterpreterFilters>,
-  pagination?: { page?: number; pageSize?: number },
-): Promise<InterpreterListResponse> {
-  const admin = createSupabaseAdminClient();
-  const page = Math.max(1, Number(pagination?.page ?? 1) || 1);
-  const pageSize = Math.min(maxInterpreterPageSize, Math.max(1, Number(pagination?.pageSize ?? defaultInterpreterPageSize) || defaultInterpreterPageSize));
-  const from = (page - 1) * pageSize;
-  const to = from + pageSize - 1;
-  let query = admin
-    .from("interpreters")
-    .select(
-      "id, employee_id, full_name, email, language, location, country, client_id, payment_frequency, weekly, rate, status, propio_interpreter_id, big_interpreter_id, equiti_voyce_id, equiti_martti_id, mercury_recipient_id, zoho_contact_id, last_synced_at, sync_status, sync_error_message, created_at",
-      { count: "exact" },
-    )
-    .order("full_name", { ascending: true })
-    .order("id", { ascending: true })
-    .range(from, to);
-
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function applyInterpreterFilters(query: any, filters: Partial<InterpreterFilters>) {
   if (filters.full_name?.trim()) {
     query = query.ilike("full_name", `%${filters.full_name.trim()}%`);
   }
@@ -211,8 +197,60 @@ export async function listInterpreterItems(
   if (filters.status?.trim()) {
     query = query.eq("status", filters.status);
   }
+  return query;
+}
 
-  const { data, error, count } = await query.returns<InterpreterRow[]>();
+type StatusCountRow = { status: string; zoho_contact_id: string | null; sync_status: string };
+
+async function computeStatusCounts(
+  admin: ReturnType<typeof createSupabaseAdminClient>,
+  filters: Partial<InterpreterFilters>,
+): Promise<InterpreterStatusCounts> {
+  let query = admin.from("interpreters").select("status, zoho_contact_id, sync_status");
+  query = applyInterpreterFilters(query, filters);
+
+  const { data, error } = await query.returns<StatusCountRow[]>();
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  const rows = data ?? [];
+  const activeSet = new Set<string>(activeStatuses);
+  const terminatedSet = new Set<string>(terminatedStatuses);
+
+  return {
+    active: rows.filter((r) => activeSet.has(r.status)).length,
+    on_hold: rows.filter((r) => r.status === "On Hold").length,
+    terminated: rows.filter((r) => terminatedSet.has(r.status)).length,
+    not_synced: rows.filter((r) => !r.zoho_contact_id || r.sync_status !== "synced").length,
+  };
+}
+
+export async function listInterpreterItems(
+  filters: Partial<InterpreterFilters>,
+  pagination?: { page?: number; pageSize?: number },
+): Promise<InterpreterListResponse> {
+  const admin = createSupabaseAdminClient();
+  const page = Math.max(1, Number(pagination?.page ?? 1) || 1);
+  const pageSize = Math.min(maxInterpreterPageSize, Math.max(1, Number(pagination?.pageSize ?? defaultInterpreterPageSize) || defaultInterpreterPageSize));
+  const from = (page - 1) * pageSize;
+  const to = from + pageSize - 1;
+  let query = admin
+    .from("interpreters")
+    .select(
+      "id, employee_id, full_name, email, language, location, country, client_id, payment_frequency, weekly, rate, status, propio_interpreter_id, big_interpreter_id, equiti_voyce_id, equiti_martti_id, mercury_recipient_id, zoho_contact_id, last_synced_at, sync_status, sync_error_message, created_at",
+      { count: "exact" },
+    )
+    .order("full_name", { ascending: true })
+    .order("id", { ascending: true })
+    .range(from, to);
+
+  query = applyInterpreterFilters(query, filters);
+
+  const [{ data, error, count }, statusCounts] = await Promise.all([
+    query.returns<InterpreterRow[]>(),
+    computeStatusCounts(admin, filters),
+  ]);
   if (error) {
     throw new Error(error.message);
   }
@@ -245,5 +283,6 @@ export async function listInterpreterItems(
     page,
     page_size: pageSize,
     total_pages: total === 0 ? 1 : Math.ceil(total / pageSize),
+    status_counts: statusCounts,
   };
 }
