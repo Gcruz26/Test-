@@ -1043,7 +1043,7 @@ export function InterpreterManagementPage() {
                             <div className="flex items-center justify-end gap-1">
                               <button
                                 type="button"
-                                className="inline-flex size-6 items-center justify-center rounded text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+                                className="inline-flex size-6 items-center justify-center rounded text-slate-400 hover:bg-slate-100 hover:text-slate-700 focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-1"
                                 aria-label="View profile"
                                 title="View profile"
                                 onClick={() => router.push(`/interpreters/${item.id}`)}
@@ -1052,7 +1052,7 @@ export function InterpreterManagementPage() {
                               </button>
                               <button
                                 type="button"
-                                className="inline-flex size-6 items-center justify-center rounded text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+                                className="inline-flex size-6 items-center justify-center rounded text-slate-400 hover:bg-slate-100 hover:text-slate-700 focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-1"
                                 aria-label="Edit interpreter"
                                 title="Edit interpreter"
                                 onClick={() => router.push(`/interpreters/${item.id}/edit`)}
@@ -1061,7 +1061,7 @@ export function InterpreterManagementPage() {
                               </button>
                               <button
                                 type="button"
-                                className="inline-flex size-6 items-center justify-center rounded text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+                                className="inline-flex size-6 items-center justify-center rounded text-slate-400 hover:bg-slate-100 hover:text-slate-700 focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-1"
                                 aria-label="Change status"
                                 title="Change status"
                                 onClick={() => handlePlaceholderAction(`Status update for ${item.full_name} is not wired yet.`)}

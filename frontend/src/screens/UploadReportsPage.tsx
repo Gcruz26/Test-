@@ -370,442 +370,442 @@ export function UploadReportsPage() {
         </div>
       </div>
 
-          {!hasValidDateRange && dateRangeStart && dateRangeEnd ? (
-            <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-              End date cannot be earlier than start date.
+      {!hasValidDateRange && dateRangeStart && dateRangeEnd ? (
+        <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          End date cannot be earlier than start date.
+        </div>
+      ) : null}
+
+      {uploadError ? <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{uploadError}</div> : null}
+
+      {savedIntake ? (
+        <Card className="border-slate-200/80">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm text-slate-950">Report stored successfully</CardTitle>
+            <CardDescription>The intake is saved. Open the dedicated summary workspace to review results and exports.</CardDescription>
+          </CardHeader>
+          <CardContent className="grid gap-4">
+            <div className="grid gap-3 md:grid-cols-2">
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
+                <strong className="block text-slate-950">Intake ID</strong>
+                <span>#{savedIntake.id}</span>
+              </div>
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
+                <strong className="block text-slate-950">Client</strong>
+                <span>{savedIntake.client_name} • {savedIntake.client_platform}</span>
+              </div>
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600 md:col-span-2">
+                <strong className="block text-slate-950">Period</strong>
+                <span>{formatDate(savedIntake.date_range_start)} - {formatDate(savedIntake.date_range_end)}</span>
+              </div>
             </div>
-          ) : null}
 
-          {uploadError ? <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{uploadError}</div> : null}
+            <div className="flex flex-wrap gap-3">
+              <a href={`/report-summaries/${savedIntake.id}`} className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+                View Summary
+              </a>
+              <Button type="button" variant="outline" onClick={resetForNextUpload}>
+                Upload Another File
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      ) : null}
 
-          {savedIntake ? (
+      {propioSummary ? (
+        <>
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
             <Card className="border-slate-200/80">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm text-slate-950">Report stored successfully</CardTitle>
-                <CardDescription>The intake is saved. Open the dedicated summary workspace to review results and exports.</CardDescription>
-              </CardHeader>
-              <CardContent className="grid gap-4">
-                <div className="grid gap-3 md:grid-cols-2">
-                  <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
-                    <strong className="block text-slate-950">Intake ID</strong>
-                    <span>#{savedIntake.id}</span>
-                  </div>
-                  <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
-                    <strong className="block text-slate-950">Client</strong>
-                    <span>{savedIntake.client_name} • {savedIntake.client_platform}</span>
-                  </div>
-                  <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600 md:col-span-2">
-                    <strong className="block text-slate-950">Period</strong>
-                    <span>{formatDate(savedIntake.date_range_start)} - {formatDate(savedIntake.date_range_end)}</span>
-                  </div>
+              <CardContent className="flex items-start gap-4 p-5">
+                <div className="rounded-2xl bg-sky-50 p-3 text-sky-700">
+                  <Users2 className="size-5" aria-hidden="true" />
                 </div>
-
-                <div className="flex flex-wrap gap-3">
-                  <a href={`/report-summaries/${savedIntake.id}`} className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
-                    View Summary
-                  </a>
-                  <Button type="button" variant="outline" onClick={resetForNextUpload}>
-                    Upload Another File
-                  </Button>
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Agents</p>
+                  <strong className="mt-2 block text-2xl tabular-nums text-slate-950">{formatNumber(propioSummary.row_count)}</strong>
+                  <span className="mt-1 block text-xs text-slate-500">Parsed roster rows</span>
                 </div>
               </CardContent>
             </Card>
-          ) : null}
-
-          {propioSummary ? (
-            <>
-              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
-                <Card className="border-slate-200/80">
-                  <CardContent className="flex items-start gap-4 p-5">
-                    <div className="rounded-2xl bg-sky-50 p-3 text-sky-700">
-                      <Users2 className="size-5" aria-hidden="true" />
-                    </div>
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Agents</p>
-                      <strong className="mt-2 block text-2xl tabular-nums text-slate-950">{formatNumber(propioSummary.row_count)}</strong>
-                      <span className="mt-1 block text-xs text-slate-500">Parsed roster rows</span>
-                    </div>
-                  </CardContent>
-                </Card>
-                <Card className="border-slate-200/80">
-                  <CardContent className="flex items-start gap-4 p-5">
-                    <div className="rounded-2xl bg-emerald-50 p-3 text-emerald-700">
-                      <Gauge className="size-5" aria-hidden="true" />
-                    </div>
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Avg Utilization</p>
-                      <strong className="mt-2 block text-2xl tabular-nums text-slate-950">{formatPercent(propioSummary.average_utilization_pct)}</strong>
-                      <span className="mt-1 block text-xs text-slate-500">Across imported agents</span>
-                    </div>
-                  </CardContent>
-                </Card>
-                <Card className="border-slate-200/80">
-                  <CardContent className="flex items-start gap-4 p-5">
-                    <div className="rounded-2xl bg-cyan-50 p-3 text-cyan-700">
-                      <PhoneCall className="size-5" aria-hidden="true" />
-                    </div>
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Calls</p>
-                      <strong className="mt-2 block text-2xl tabular-nums text-slate-950">{formatNumber(propioSummary.total_calls)}</strong>
-                      <span className="mt-1 block text-xs text-slate-500">{formatCompactNumber(propioSummary.total_calls)} total activity</span>
-                    </div>
-                  </CardContent>
-                </Card>
-                <Card className="border-slate-200/80">
-                  <CardContent className="flex items-start gap-4 p-5">
-                    <div className="rounded-2xl bg-violet-50 p-3 text-violet-700">
-                      <Timer className="size-5" aria-hidden="true" />
-                    </div>
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Payable Minutes</p>
-                      <strong className="mt-2 block text-2xl tabular-nums text-slate-950">{formatNumber(propioSummary.total_payable_minutes)}</strong>
-                      <span className="mt-1 block text-xs text-slate-500">Workbook total</span>
-                    </div>
-                  </CardContent>
-                </Card>
-                <Card className="border-slate-200/80">
-                  <CardContent className="flex items-start gap-4 p-5">
-                    <div className="rounded-2xl bg-amber-50 p-3 text-amber-700">
-                      <FileSpreadsheet className="size-5" aria-hidden="true" />
-                    </div>
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Portal Hours</p>
-                      <strong className="mt-2 block text-2xl tabular-nums text-slate-950">{formatHours(propioSummary.total_portal_hours)}</strong>
-                      <span className="mt-1 block text-xs text-slate-500">Imported total hours</span>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-
-              <div className="grid gap-5 xl:grid-cols-[1.05fr_0.95fr]">
-                <Card className="border-slate-200/80">
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-sm text-slate-950">Import details</CardTitle>
-                    <CardDescription>How this workbook is classified in the app.</CardDescription>
-                  </CardHeader>
-                  <CardContent className="grid gap-3 text-sm text-slate-600">
-                    <div className="rounded-2xl bg-slate-50 px-4 py-3">
-                      <strong className="block text-slate-950">Sheet detected</strong>
-                      <span>{propioSummary.sheet_name}</span>
-                    </div>
-                    <div className="rounded-2xl bg-slate-50 px-4 py-3">
-                      <strong className="block text-slate-950">Classification</strong>
-                      <span>Propio productivity summary</span>
-                    </div>
-                    <div className="rounded-2xl bg-slate-50 px-4 py-3">
-                      <strong className="block text-slate-950">Processing rule</strong>
-                      <span>Aggregated by interpreter, so it stays outside the billing transform flow.</span>
-                    </div>
-                    <div className="rounded-2xl border border-cyan-200 bg-cyan-50 px-4 py-3 text-cyan-900">
-                      <div className="flex items-start gap-3">
-                        <ShieldCheck className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
-                        <div>
-                          <strong className="block">Validated format</strong>
-                          <span>Headers match the expected Propio `Export` workbook.</span>
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="border-slate-200/80">
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-sm text-slate-950">Top preview rows</CardTitle>
-                    <CardDescription>Quick QA sample from the imported workbook.</CardDescription>
-                  </CardHeader>
-                  <CardContent className="grid gap-3">
-                    {propioSummary.rows.slice(0, 6).map((row) => (
-                      <div key={`${row.agent}-${row.client_interpreter_id}`} className="rounded-2xl border border-slate-200 bg-white px-4 py-4">
-                        <div className="flex flex-wrap items-start justify-between gap-3">
-                          <div>
-                            <strong className="block text-slate-950">{row.interpreter_name}</strong>
-                            <span className="text-sm text-slate-500">{row.client_interpreter_id || "No client interpreter ID parsed"}</span>
-                          </div>
-                          <div className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
-                            {formatPercent(row.utilization_pct)}
-                          </div>
-                        </div>
-                        <div className="mt-3 grid gap-2 text-sm text-slate-600 sm:grid-cols-2">
-                          <span>Portal hours: {formatHours(row.total_portal_hours)}</span>
-                          <span>Calls: {formatNumber(row.calls)}</span>
-                          <span>Payable minutes: {formatNumber(row.payable_minutes)}</span>
-                          <span>N/A&apos;s + Rejects: {formatNumber(row.na_count + row.rejects)}</span>
-                        </div>
-                      </div>
-                    ))}
-                  </CardContent>
-                </Card>
-              </div>
-            </>
-          ) : null}
-
-          {bigSummary ? (
-            <>
-              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
-                <Card className="border-slate-200/80">
-                  <CardContent className="flex items-start gap-4 p-5">
-                    <div className="rounded-2xl bg-sky-50 p-3 text-sky-700">
-                      <PhoneCall className="size-5" aria-hidden="true" />
-                    </div>
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Jobs</p>
-                      <strong className="mt-2 block text-2xl tabular-nums text-slate-950">{formatNumber(bigSummary.row_count)}</strong>
-                      <span className="mt-1 block text-xs text-slate-500">Imported job rows</span>
-                    </div>
-                  </CardContent>
-                </Card>
-                <Card className="border-slate-200/80">
-                  <CardContent className="flex items-start gap-4 p-5">
-                    <div className="rounded-2xl bg-cyan-50 p-3 text-cyan-700">
-                      <Timer className="size-5" aria-hidden="true" />
-                    </div>
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Duration</p>
-                      <strong className="mt-2 block text-2xl tabular-nums text-slate-950">{formatDurationFromSeconds(bigSummary.total_duration_seconds)}</strong>
-                      <span className="mt-1 block text-xs text-slate-500">Total billed conversation time</span>
-                    </div>
-                  </CardContent>
-                </Card>
-                <Card className="border-slate-200/80">
-                  <CardContent className="flex items-start gap-4 p-5">
-                    <div className="rounded-2xl bg-emerald-50 p-3 text-emerald-700">
-                      <ShieldCheck className="size-5" aria-hidden="true" />
-                    </div>
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Completed</p>
-                      <strong className="mt-2 block text-2xl tabular-nums text-slate-950">{formatNumber(bigSummary.completed_count)}</strong>
-                      <span className="mt-1 block text-xs text-slate-500">{formatCompactNumber(bigSummary.completed_count)} completed calls</span>
-                    </div>
-                  </CardContent>
-                </Card>
-                <Card className="border-slate-200/80">
-                  <CardContent className="flex items-start gap-4 p-5">
-                    <div className="rounded-2xl bg-violet-50 p-3 text-violet-700">
-                      <Users2 className="size-5" aria-hidden="true" />
-                    </div>
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Interpreters</p>
-                      <strong className="mt-2 block text-2xl tabular-nums text-slate-950">{formatNumber(bigSummary.distinct_interpreters)}</strong>
-                      <span className="mt-1 block text-xs text-slate-500">Distinct interpreter IDs</span>
-                    </div>
-                  </CardContent>
-                </Card>
-                <Card className="border-slate-200/80">
-                  <CardContent className="flex items-start gap-4 p-5">
-                    <div className="rounded-2xl bg-amber-50 p-3 text-amber-700">
-                      <Banknote className="size-5" aria-hidden="true" />
-                    </div>
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Hold Time</p>
-                      <strong className="mt-2 block text-2xl tabular-nums text-slate-950">{formatDurationFromSeconds(bigSummary.total_hold_time_seconds)}</strong>
-                      <span className="mt-1 block text-xs text-slate-500">Cumulative hold time</span>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-
-              <div className="grid gap-5 xl:grid-cols-[1.05fr_0.95fr]">
-                <Card className="border-slate-200/80">
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-sm text-slate-950">Import details</CardTitle>
-                    <CardDescription>How this BIG file is classified in the app.</CardDescription>
-                  </CardHeader>
-                  <CardContent className="grid gap-3 text-sm text-slate-600">
-                    <div className="rounded-2xl bg-slate-50 px-4 py-3">
-                      <strong className="block text-slate-950">Detected format</strong>
-                      <span>BIG transactional per-minute CSV</span>
-                    </div>
-                    <div className="rounded-2xl bg-slate-50 px-4 py-3">
-                      <strong className="block text-slate-950">Classification</strong>
-                      <span>Job-level call activity report</span>
-                    </div>
-                    <div className="rounded-2xl bg-slate-50 px-4 py-3">
-                      <strong className="block text-slate-950">Processing rule</strong>
-                      <span>This file is transactional, so preview totals come from job rows rather than interpreter aggregates.</span>
-                    </div>
-                    <div className="rounded-2xl bg-slate-50 px-4 py-3">
-                      <strong className="block text-slate-950">Top language</strong>
-                      <span>{bigSummary.top_language}</span>
-                    </div>
-                    <div className="rounded-2xl border border-cyan-200 bg-cyan-50 px-4 py-3 text-cyan-900">
-                      <div className="flex items-start gap-3">
-                        <ShieldCheck className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
-                        <div>
-                          <strong className="block">Validated format</strong>
-                          <span>Headers match the BIG per-minute CSV you provided.</span>
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="border-slate-200/80">
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-sm text-slate-950">Top preview rows</CardTitle>
-                    <CardDescription>Quick QA sample from the imported BIG transaction file.</CardDescription>
-                  </CardHeader>
-                  <CardContent className="grid gap-3">
-                    {bigSummary.rows.slice(0, 6).map((row) => (
-                      <div key={row.job_id} className="rounded-2xl border border-slate-200 bg-white px-4 py-4">
-                        <div className="flex flex-wrap items-start justify-between gap-3">
-                          <div>
-                            <strong className="block text-slate-950">Job {row.job_id}</strong>
-                            <span className="text-sm text-slate-500">
-                              Interpreter {row.interpreter_id || "Unknown"} • {row.language || "Unknown language"}
-                            </span>
-                          </div>
-                          <div className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
-                            {row.status || "Unknown status"}
-                          </div>
-                        </div>
-                        <div className="mt-3 grid gap-2 text-sm text-slate-600 sm:grid-cols-2">
-                          <span>Date: {row.service_date}</span>
-                          <span>Site: {row.site}</span>
-                          <span>Duration: {row.duration_text || "-"}</span>
-                          <span>Hold time: {row.hold_time_text || "-"}</span>
-                          <span>Job type: {row.job_type || "-"}</span>
-                          <span>Skill: {row.skill_type || "-"}</span>
-                        </div>
-                      </div>
-                    ))}
-                  </CardContent>
-                </Card>
-              </div>
-            </>
-          ) : null}
-
-          {equitiVoyceSummary ? (
-            <>
-              <div className="grid gap-4 md:grid-cols-3">
-                <Card className="border-slate-200/80">
-                  <CardContent className="flex items-start gap-4 p-5">
-                    <div className="rounded-2xl bg-sky-50 p-3 text-sky-700">
-                      <FileSpreadsheet className="size-5" aria-hidden="true" />
-                    </div>
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Rows</p>
-                      <strong className="mt-2 block text-2xl tabular-nums text-slate-950">{formatNumber(equitiVoyceSummary.row_count)}</strong>
-                      <span className="mt-1 block text-xs text-slate-500">Imported CSV rows</span>
-                    </div>
-                  </CardContent>
-                </Card>
-                <Card className="border-slate-200/80">
-                  <CardContent className="flex items-start gap-4 p-5">
-                    <div className="rounded-2xl bg-cyan-50 p-3 text-cyan-700">
-                      <Gauge className="size-5" aria-hidden="true" />
-                    </div>
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Columns</p>
-                      <strong className="mt-2 block text-2xl tabular-nums text-slate-950">{formatNumber(equitiVoyceSummary.column_count)}</strong>
-                      <span className="mt-1 block text-xs text-slate-500">Detected header columns</span>
-                    </div>
-                  </CardContent>
-                </Card>
-                <Card className="border-slate-200/80">
-                  <CardContent className="flex items-start gap-4 p-5">
-                    <div className="rounded-2xl bg-emerald-50 p-3 text-emerald-700">
-                      <ShieldCheck className="size-5" aria-hidden="true" />
-                    </div>
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Platform</p>
-                      <strong className="mt-2 block text-2xl tabular-nums text-slate-950">{equitiVoyceSummary.source_platform}</strong>
-                      <span className="mt-1 block text-xs text-slate-500">Generic Voyce intake</span>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-
-              <div className="grid gap-5 xl:grid-cols-[0.95fr_1.05fr]">
-                <Card className="border-slate-200/80">
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-sm text-slate-950">Import details</CardTitle>
-                    <CardDescription>Current Equiti support stores a generic CSV intake for Voyce.</CardDescription>
-                  </CardHeader>
-                  <CardContent className="grid gap-3 text-sm text-slate-600">
-                    <div className="rounded-2xl bg-slate-50 px-4 py-3">
-                      <strong className="block text-slate-950">Detected format</strong>
-                      <span>Equiti Voyce CSV</span>
-                    </div>
-                    <div className="rounded-2xl bg-slate-50 px-4 py-3">
-                      <strong className="block text-slate-950">Headers</strong>
-                      <span>{equitiVoyceSummary.headers.join(", ")}</span>
-                    </div>
-                    <div className="rounded-2xl bg-slate-50 px-4 py-3">
-                      <strong className="block text-slate-950">Processing rule</strong>
-                      <span>This intake preserves the uploaded columns as-is until field-level Equiti mapping is defined.</span>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="border-slate-200/80">
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-sm text-slate-950">Top preview rows</CardTitle>
-                    <CardDescription>Quick QA sample from the imported Voyce CSV.</CardDescription>
-                  </CardHeader>
-                  <CardContent className="grid gap-3">
-                    {equitiVoyceSummary.rows.slice(0, 6).map((row, index) => (
-                      <div key={`equiti-row-${index}`} className="rounded-2xl border border-slate-200 bg-white px-4 py-4">
-                        <div className="grid gap-2 text-sm text-slate-600">
-                          {equitiVoyceSummary.headers.slice(0, 6).map((header) => (
-                            <span key={`${index}-${header}`}>
-                              <strong className="text-slate-950">{header}:</strong> {row[header] || "-"}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    ))}
-                  </CardContent>
-                </Card>
-              </div>
-            </>
-          ) : null}
-
-          {false ? (
             <Card className="border-slate-200/80">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm text-slate-950">Saved imports</CardTitle>
-              <CardDescription>Latest report uploads already stored in the database.</CardDescription>
-            </CardHeader>
-            <CardContent className="grid gap-3">
-              {historyError ? <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{historyError}</div> : null}
-              {reportIntakes.length === 0 ? (
-                <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-6 text-sm text-slate-500">
-                  No saved imports yet.
+              <CardContent className="flex items-start gap-4 p-5">
+                <div className="rounded-2xl bg-emerald-50 p-3 text-emerald-700">
+                  <Gauge className="size-5" aria-hidden="true" />
                 </div>
-              ) : (
-                reportIntakes.map((item) => (
-                  <button
-                    key={item.id}
-                    type="button"
-                    onClick={() => handleSelectIntake(item)}
-                    className={`rounded-2xl border px-4 py-4 text-left transition ${
-                      currentIntake?.id === item.id
-                        ? "border-cyan-300 bg-cyan-50/70 shadow-sm"
-                        : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
-                    }`}
-                  >
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Avg Utilization</p>
+                  <strong className="mt-2 block text-2xl tabular-nums text-slate-950">{formatPercent(propioSummary.average_utilization_pct)}</strong>
+                  <span className="mt-1 block text-xs text-slate-500">Across imported agents</span>
+                </div>
+              </CardContent>
+            </Card>
+            <Card className="border-slate-200/80">
+              <CardContent className="flex items-start gap-4 p-5">
+                <div className="rounded-2xl bg-cyan-50 p-3 text-cyan-700">
+                  <PhoneCall className="size-5" aria-hidden="true" />
+                </div>
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Calls</p>
+                  <strong className="mt-2 block text-2xl tabular-nums text-slate-950">{formatNumber(propioSummary.total_calls)}</strong>
+                  <span className="mt-1 block text-xs text-slate-500">{formatCompactNumber(propioSummary.total_calls)} total activity</span>
+                </div>
+              </CardContent>
+            </Card>
+            <Card className="border-slate-200/80">
+              <CardContent className="flex items-start gap-4 p-5">
+                <div className="rounded-2xl bg-violet-50 p-3 text-violet-700">
+                  <Timer className="size-5" aria-hidden="true" />
+                </div>
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Payable Minutes</p>
+                  <strong className="mt-2 block text-2xl tabular-nums text-slate-950">{formatNumber(propioSummary.total_payable_minutes)}</strong>
+                  <span className="mt-1 block text-xs text-slate-500">Workbook total</span>
+                </div>
+              </CardContent>
+            </Card>
+            <Card className="border-slate-200/80">
+              <CardContent className="flex items-start gap-4 p-5">
+                <div className="rounded-2xl bg-amber-50 p-3 text-amber-700">
+                  <FileSpreadsheet className="size-5" aria-hidden="true" />
+                </div>
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Portal Hours</p>
+                  <strong className="mt-2 block text-2xl tabular-nums text-slate-950">{formatHours(propioSummary.total_portal_hours)}</strong>
+                  <span className="mt-1 block text-xs text-slate-500">Imported total hours</span>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="grid gap-5 xl:grid-cols-[1.05fr_0.95fr]">
+            <Card className="border-slate-200/80">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm text-slate-950">Import details</CardTitle>
+                <CardDescription>How this workbook is classified in the app.</CardDescription>
+              </CardHeader>
+              <CardContent className="grid gap-3 text-sm text-slate-600">
+                <div className="rounded-2xl bg-slate-50 px-4 py-3">
+                  <strong className="block text-slate-950">Sheet detected</strong>
+                  <span>{propioSummary.sheet_name}</span>
+                </div>
+                <div className="rounded-2xl bg-slate-50 px-4 py-3">
+                  <strong className="block text-slate-950">Classification</strong>
+                  <span>Propio productivity summary</span>
+                </div>
+                <div className="rounded-2xl bg-slate-50 px-4 py-3">
+                  <strong className="block text-slate-950">Processing rule</strong>
+                  <span>Aggregated by interpreter, so it stays outside the billing transform flow.</span>
+                </div>
+                <div className="rounded-2xl border border-cyan-200 bg-cyan-50 px-4 py-3 text-cyan-900">
+                  <div className="flex items-start gap-3">
+                    <ShieldCheck className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+                    <div>
+                      <strong className="block">Validated format</strong>
+                      <span>Headers match the expected Propio `Export` workbook.</span>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border-slate-200/80">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm text-slate-950">Top preview rows</CardTitle>
+                <CardDescription>Quick QA sample from the imported workbook.</CardDescription>
+              </CardHeader>
+              <CardContent className="grid gap-3">
+                {propioSummary.rows.slice(0, 6).map((row) => (
+                  <div key={`${row.agent}-${row.client_interpreter_id}`} className="rounded-2xl border border-slate-200 bg-white px-4 py-4">
                     <div className="flex flex-wrap items-start justify-between gap-3">
                       <div>
-                        <strong className="block text-slate-950">{item.file_name}</strong>
+                        <strong className="block text-slate-950">{row.interpreter_name}</strong>
+                        <span className="text-sm text-slate-500">{row.client_interpreter_id || "No client interpreter ID parsed"}</span>
+                      </div>
+                      <div className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
+                        {formatPercent(row.utilization_pct)}
+                      </div>
+                    </div>
+                    <div className="mt-3 grid gap-2 text-sm text-slate-600 sm:grid-cols-2">
+                      <span>Portal hours: {formatHours(row.total_portal_hours)}</span>
+                      <span>Calls: {formatNumber(row.calls)}</span>
+                      <span>Payable minutes: {formatNumber(row.payable_minutes)}</span>
+                      <span>N/A&apos;s + Rejects: {formatNumber(row.na_count + row.rejects)}</span>
+                    </div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          </div>
+        </>
+      ) : null}
+
+      {bigSummary ? (
+        <>
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+            <Card className="border-slate-200/80">
+              <CardContent className="flex items-start gap-4 p-5">
+                <div className="rounded-2xl bg-sky-50 p-3 text-sky-700">
+                  <PhoneCall className="size-5" aria-hidden="true" />
+                </div>
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Jobs</p>
+                  <strong className="mt-2 block text-2xl tabular-nums text-slate-950">{formatNumber(bigSummary.row_count)}</strong>
+                  <span className="mt-1 block text-xs text-slate-500">Imported job rows</span>
+                </div>
+              </CardContent>
+            </Card>
+            <Card className="border-slate-200/80">
+              <CardContent className="flex items-start gap-4 p-5">
+                <div className="rounded-2xl bg-cyan-50 p-3 text-cyan-700">
+                  <Timer className="size-5" aria-hidden="true" />
+                </div>
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Duration</p>
+                  <strong className="mt-2 block text-2xl tabular-nums text-slate-950">{formatDurationFromSeconds(bigSummary.total_duration_seconds)}</strong>
+                  <span className="mt-1 block text-xs text-slate-500">Total billed conversation time</span>
+                </div>
+              </CardContent>
+            </Card>
+            <Card className="border-slate-200/80">
+              <CardContent className="flex items-start gap-4 p-5">
+                <div className="rounded-2xl bg-emerald-50 p-3 text-emerald-700">
+                  <ShieldCheck className="size-5" aria-hidden="true" />
+                </div>
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Completed</p>
+                  <strong className="mt-2 block text-2xl tabular-nums text-slate-950">{formatNumber(bigSummary.completed_count)}</strong>
+                  <span className="mt-1 block text-xs text-slate-500">{formatCompactNumber(bigSummary.completed_count)} completed calls</span>
+                </div>
+              </CardContent>
+            </Card>
+            <Card className="border-slate-200/80">
+              <CardContent className="flex items-start gap-4 p-5">
+                <div className="rounded-2xl bg-violet-50 p-3 text-violet-700">
+                  <Users2 className="size-5" aria-hidden="true" />
+                </div>
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Interpreters</p>
+                  <strong className="mt-2 block text-2xl tabular-nums text-slate-950">{formatNumber(bigSummary.distinct_interpreters)}</strong>
+                  <span className="mt-1 block text-xs text-slate-500">Distinct interpreter IDs</span>
+                </div>
+              </CardContent>
+            </Card>
+            <Card className="border-slate-200/80">
+              <CardContent className="flex items-start gap-4 p-5">
+                <div className="rounded-2xl bg-amber-50 p-3 text-amber-700">
+                  <Banknote className="size-5" aria-hidden="true" />
+                </div>
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Hold Time</p>
+                  <strong className="mt-2 block text-2xl tabular-nums text-slate-950">{formatDurationFromSeconds(bigSummary.total_hold_time_seconds)}</strong>
+                  <span className="mt-1 block text-xs text-slate-500">Cumulative hold time</span>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="grid gap-5 xl:grid-cols-[1.05fr_0.95fr]">
+            <Card className="border-slate-200/80">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm text-slate-950">Import details</CardTitle>
+                <CardDescription>How this BIG file is classified in the app.</CardDescription>
+              </CardHeader>
+              <CardContent className="grid gap-3 text-sm text-slate-600">
+                <div className="rounded-2xl bg-slate-50 px-4 py-3">
+                  <strong className="block text-slate-950">Detected format</strong>
+                  <span>BIG transactional per-minute CSV</span>
+                </div>
+                <div className="rounded-2xl bg-slate-50 px-4 py-3">
+                  <strong className="block text-slate-950">Classification</strong>
+                  <span>Job-level call activity report</span>
+                </div>
+                <div className="rounded-2xl bg-slate-50 px-4 py-3">
+                  <strong className="block text-slate-950">Processing rule</strong>
+                  <span>This file is transactional, so preview totals come from job rows rather than interpreter aggregates.</span>
+                </div>
+                <div className="rounded-2xl bg-slate-50 px-4 py-3">
+                  <strong className="block text-slate-950">Top language</strong>
+                  <span>{bigSummary.top_language}</span>
+                </div>
+                <div className="rounded-2xl border border-cyan-200 bg-cyan-50 px-4 py-3 text-cyan-900">
+                  <div className="flex items-start gap-3">
+                    <ShieldCheck className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+                    <div>
+                      <strong className="block">Validated format</strong>
+                      <span>Headers match the BIG per-minute CSV you provided.</span>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border-slate-200/80">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm text-slate-950">Top preview rows</CardTitle>
+                <CardDescription>Quick QA sample from the imported BIG transaction file.</CardDescription>
+              </CardHeader>
+              <CardContent className="grid gap-3">
+                {bigSummary.rows.slice(0, 6).map((row) => (
+                  <div key={row.job_id} className="rounded-2xl border border-slate-200 bg-white px-4 py-4">
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                      <div>
+                        <strong className="block text-slate-950">Job {row.job_id}</strong>
                         <span className="text-sm text-slate-500">
-                          {item.client_name} • {item.client_platform} • {formatDate(item.date_range_start)} - {formatDate(item.date_range_end)}
+                          Interpreter {row.interpreter_id || "Unknown"} • {row.language || "Unknown language"}
                         </span>
                       </div>
                       <div className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
-                        {item.report_kind}
+                        {row.status || "Unknown status"}
                       </div>
                     </div>
-                    <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-sm text-slate-600">
-                      <span>{formatNumber(item.row_count)} rows</span>
-                      <span>{summarizeHistoryItem(item)}</span>
-                      <span>{formatDateTime(item.created_at)}</span>
+                    <div className="mt-3 grid gap-2 text-sm text-slate-600 sm:grid-cols-2">
+                      <span>Date: {row.service_date}</span>
+                      <span>Site: {row.site}</span>
+                      <span>Duration: {row.duration_text || "-"}</span>
+                      <span>Hold time: {row.hold_time_text || "-"}</span>
+                      <span>Job type: {row.job_type || "-"}</span>
+                      <span>Skill: {row.skill_type || "-"}</span>
                     </div>
-                  </button>
-                ))
-              )}
-            </CardContent>
+                  </div>
+                ))}
+              </CardContent>
             </Card>
-          ) : null}
+          </div>
+        </>
+      ) : null}
+
+      {equitiVoyceSummary ? (
+        <>
+          <div className="grid gap-4 md:grid-cols-3">
+            <Card className="border-slate-200/80">
+              <CardContent className="flex items-start gap-4 p-5">
+                <div className="rounded-2xl bg-sky-50 p-3 text-sky-700">
+                  <FileSpreadsheet className="size-5" aria-hidden="true" />
+                </div>
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Rows</p>
+                  <strong className="mt-2 block text-2xl tabular-nums text-slate-950">{formatNumber(equitiVoyceSummary.row_count)}</strong>
+                  <span className="mt-1 block text-xs text-slate-500">Imported CSV rows</span>
+                </div>
+              </CardContent>
+            </Card>
+            <Card className="border-slate-200/80">
+              <CardContent className="flex items-start gap-4 p-5">
+                <div className="rounded-2xl bg-cyan-50 p-3 text-cyan-700">
+                  <Gauge className="size-5" aria-hidden="true" />
+                </div>
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Columns</p>
+                  <strong className="mt-2 block text-2xl tabular-nums text-slate-950">{formatNumber(equitiVoyceSummary.column_count)}</strong>
+                  <span className="mt-1 block text-xs text-slate-500">Detected header columns</span>
+                </div>
+              </CardContent>
+            </Card>
+            <Card className="border-slate-200/80">
+              <CardContent className="flex items-start gap-4 p-5">
+                <div className="rounded-2xl bg-emerald-50 p-3 text-emerald-700">
+                  <ShieldCheck className="size-5" aria-hidden="true" />
+                </div>
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Platform</p>
+                  <strong className="mt-2 block text-2xl tabular-nums text-slate-950">{equitiVoyceSummary.source_platform}</strong>
+                  <span className="mt-1 block text-xs text-slate-500">Generic Voyce intake</span>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="grid gap-5 xl:grid-cols-[0.95fr_1.05fr]">
+            <Card className="border-slate-200/80">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm text-slate-950">Import details</CardTitle>
+                <CardDescription>Current Equiti support stores a generic CSV intake for Voyce.</CardDescription>
+              </CardHeader>
+              <CardContent className="grid gap-3 text-sm text-slate-600">
+                <div className="rounded-2xl bg-slate-50 px-4 py-3">
+                  <strong className="block text-slate-950">Detected format</strong>
+                  <span>Equiti Voyce CSV</span>
+                </div>
+                <div className="rounded-2xl bg-slate-50 px-4 py-3">
+                  <strong className="block text-slate-950">Headers</strong>
+                  <span>{equitiVoyceSummary.headers.join(", ")}</span>
+                </div>
+                <div className="rounded-2xl bg-slate-50 px-4 py-3">
+                  <strong className="block text-slate-950">Processing rule</strong>
+                  <span>This intake preserves the uploaded columns as-is until field-level Equiti mapping is defined.</span>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border-slate-200/80">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm text-slate-950">Top preview rows</CardTitle>
+                <CardDescription>Quick QA sample from the imported Voyce CSV.</CardDescription>
+              </CardHeader>
+              <CardContent className="grid gap-3">
+                {equitiVoyceSummary.rows.slice(0, 6).map((row, index) => (
+                  <div key={`equiti-row-${index}`} className="rounded-2xl border border-slate-200 bg-white px-4 py-4">
+                    <div className="grid gap-2 text-sm text-slate-600">
+                      {equitiVoyceSummary.headers.slice(0, 6).map((header) => (
+                        <span key={`${index}-${header}`}>
+                          <strong className="text-slate-950">{header}:</strong> {row[header] || "-"}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          </div>
+        </>
+      ) : null}
+
+      {false ? (
+        <Card className="border-slate-200/80">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-sm text-slate-950">Saved imports</CardTitle>
+          <CardDescription>Latest report uploads already stored in the database.</CardDescription>
+        </CardHeader>
+        <CardContent className="grid gap-3">
+          {historyError ? <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{historyError}</div> : null}
+          {reportIntakes.length === 0 ? (
+            <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-6 text-sm text-slate-500">
+              No saved imports yet.
+            </div>
+          ) : (
+            reportIntakes.map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => handleSelectIntake(item)}
+                className={`rounded-2xl border px-4 py-4 text-left transition ${
+                  currentIntake?.id === item.id
+                    ? "border-cyan-300 bg-cyan-50/70 shadow-sm"
+                    : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
+                }`}
+              >
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <strong className="block text-slate-950">{item.file_name}</strong>
+                    <span className="text-sm text-slate-500">
+                      {item.client_name} • {item.client_platform} • {formatDate(item.date_range_start)} - {formatDate(item.date_range_end)}
+                    </span>
+                  </div>
+                  <div className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
+                    {item.report_kind}
+                  </div>
+                </div>
+                <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-sm text-slate-600">
+                  <span>{formatNumber(item.row_count)} rows</span>
+                  <span>{summarizeHistoryItem(item)}</span>
+                  <span>{formatDateTime(item.created_at)}</span>
+                </div>
+              </button>
+            ))
+          )}
+        </CardContent>
+        </Card>
+      ) : null}
     </section>
   );
 }
