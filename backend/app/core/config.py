@@ -4,8 +4,8 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     app_name: str = "Alfa Processing Platform API"
     environment: str = "development"
-    supabase_url: str | None = None
-    database_url: str = "postgresql+psycopg://postgres:postgres@db:5432/alfa_processing"
+    supabase_url: str = ""
+    database_url: str = ""
     secret_key: str = "change-this-secret"
     jwt_algorithm: str = "HS256"
     access_token_expire_minutes: int = 60
