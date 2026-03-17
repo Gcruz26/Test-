@@ -47,7 +47,7 @@ export function ManageColumns({ columns, visibleColumns, onToggleColumn, onReset
   return (
     <div className="relative" ref={panelRef}>
       <Button type="button" variant="outline" onClick={() => setOpen((current) => !current)}>
-        <SlidersHorizontal className="size-4" />
+        <SlidersHorizontal className="size-4" aria-hidden="true" />
         Manage Columns
       </Button>
       {open ? (

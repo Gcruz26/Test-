@@ -30,7 +30,7 @@ export function InterpreterEditor({ interpreterId }: InterpreterEditorProps) {
   }, [interpreterId]);
 
   if (loading) {
-    return <div className="loading">Loading interpreter form...</div>;
+    return <div className="loading">Loading interpreter form…</div>;
   }
 
   if (error || !interpreter) {

@@ -43,7 +43,7 @@ export function InterpreterProfile({ interpreterId }: InterpreterProfileProps) {
   }, [interpreter]);
 
   if (loading) {
-    return <div className="loading">Loading interpreter profile...</div>;
+    return <div className="loading">Loading interpreter profile…</div>;
   }
 
   if (error || !interpreter) {
@@ -117,7 +117,7 @@ export function InterpreterProfile({ interpreterId }: InterpreterProfileProps) {
           </div>
           <div>
             <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Rate</div>
-            <div className="mt-2 text-sm text-slate-800">{interpreter.rate || "-"}</div>
+            <div className="mt-2 text-sm text-slate-800" style={{ fontVariantNumeric: "tabular-nums" }}>{interpreter.rate || "-"}</div>
           </div>
           <div className="md:col-span-2">
             <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Mercury Recipient ID</div>

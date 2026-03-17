@@ -149,7 +149,7 @@ export function InterpreterForm({ mode = "create", interpreter = null }: Interpr
   }
 
   if (loading) {
-    return <div className="loading">Loading interpreter form...</div>;
+    return <div className="loading">Loading interpreter form…</div>;
   }
 
   return (
@@ -163,34 +163,34 @@ export function InterpreterForm({ mode = "create", interpreter = null }: Interpr
           <div className="grid gap-4 md:grid-cols-2">
             <div className="grid gap-2">
               <Label htmlFor="interpreter-employee-id">Employee ID</Label>
-              <Input id="interpreter-employee-id" value={form.employee_id} onChange={(e) => setForm((current) => ({ ...current, employee_id: e.target.value }))} required />
+              <Input id="interpreter-employee-id" name="employee_id" autoComplete="off" value={form.employee_id} onChange={(e) => setForm((current) => ({ ...current, employee_id: e.target.value }))} required />
             </div>
             <div className="grid gap-2">
               <Label htmlFor="interpreter-full-name">Full Name</Label>
-              <Input id="interpreter-full-name" value={form.full_name} onChange={(e) => setForm((current) => ({ ...current, full_name: e.target.value }))} required />
+              <Input id="interpreter-full-name" name="full_name" autoComplete="name" value={form.full_name} onChange={(e) => setForm((current) => ({ ...current, full_name: e.target.value }))} required />
             </div>
             <div className="grid gap-2">
               <Label htmlFor="interpreter-email">E-mail</Label>
-              <Input id="interpreter-email" type="email" value={form.email} onChange={(e) => setForm((current) => ({ ...current, email: e.target.value }))} required />
+              <Input id="interpreter-email" type="email" name="email" autoComplete="email" value={form.email} onChange={(e) => setForm((current) => ({ ...current, email: e.target.value }))} required />
             </div>
             <div className="grid gap-2">
               <Label htmlFor="interpreter-language">Language</Label>
-              <Input id="interpreter-language" value={form.language} onChange={(e) => setForm((current) => ({ ...current, language: e.target.value }))} required />
+              <Input id="interpreter-language" name="language" autoComplete="off" value={form.language} onChange={(e) => setForm((current) => ({ ...current, language: e.target.value }))} required />
             </div>
             <div className="grid gap-2">
               <Label htmlFor="interpreter-location">Location</Label>
-              <Input id="interpreter-location" value={form.location} onChange={(e) => setForm((current) => ({ ...current, location: e.target.value }))} required />
+              <Input id="interpreter-location" name="location" autoComplete="off" value={form.location} onChange={(e) => setForm((current) => ({ ...current, location: e.target.value }))} required />
             </div>
             <div className="grid gap-2">
               <Label htmlFor="interpreter-country">Country</Label>
               <div className="relative">
-                <Globe2 className="pointer-events-none absolute left-3 top-3 size-4 text-slate-400" />
-                <Input id="interpreter-country" className="pl-9" value={form.country} onChange={(e) => setForm((current) => ({ ...current, country: e.target.value }))} required />
+                <Globe2 className="pointer-events-none absolute left-3 top-3 size-4 text-slate-400" aria-hidden="true" />
+                <Input id="interpreter-country" name="country" autoComplete="country-name" className="pl-9" value={form.country} onChange={(e) => setForm((current) => ({ ...current, country: e.target.value }))} required />
               </div>
             </div>
             <div className="grid gap-2">
               <Label htmlFor="interpreter-client">Associated Client</Label>
-              <select id="interpreter-client" className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm" value={form.client_id} onChange={(e) => setForm((current) => ({ ...current, client_id: Number(e.target.value) }))} required>
+              <select id="interpreter-client" name="client_id" className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm" value={form.client_id} onChange={(e) => setForm((current) => ({ ...current, client_id: Number(e.target.value) }))} required>
                 <option value={0}>Select a client</option>
                 {meta.clients.map((client) => (
                   <option key={client.id} value={client.id}>
@@ -201,7 +201,7 @@ export function InterpreterForm({ mode = "create", interpreter = null }: Interpr
             </div>
             <div className="grid gap-2">
               <Label htmlFor="interpreter-status">Status</Label>
-              <select id="interpreter-status" className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm" value={form.status} onChange={(e) => setForm((current) => ({ ...current, status: e.target.value as InterpreterPayload["status"] }))}>
+              <select id="interpreter-status" name="status" className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm" value={form.status} onChange={(e) => setForm((current) => ({ ...current, status: e.target.value as InterpreterPayload["status"] }))}>
                 {meta.status_options.map((option) => (
                   <option key={option} value={option}>
                     {option}
@@ -219,7 +219,7 @@ export function InterpreterForm({ mode = "create", interpreter = null }: Interpr
             <div className="grid gap-4 md:grid-cols-2">
               <div className="grid gap-2">
                 <Label htmlFor="interpreter-payment-frequency">Payment Frequency</Label>
-                <select id="interpreter-payment-frequency" className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm" value={form.payment_frequency} onChange={(e) => setForm((current) => ({ ...current, payment_frequency: e.target.value as InterpreterPayload["payment_frequency"] }))} required>
+                <select id="interpreter-payment-frequency" name="payment_frequency" className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm" value={form.payment_frequency} onChange={(e) => setForm((current) => ({ ...current, payment_frequency: e.target.value as InterpreterPayload["payment_frequency"] }))} required>
                   {meta.payment_frequency_options.map((option) => (
                     <option key={option} value={option}>
                       {option}
@@ -229,14 +229,16 @@ export function InterpreterForm({ mode = "create", interpreter = null }: Interpr
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="interpreter-rate">Rate</Label>
-                <Input id="interpreter-rate" type="number" min="0" step="0.01" value={form.rate} onChange={(e) => setForm((current) => ({ ...current, rate: e.target.value }))} required />
+                <Input id="interpreter-rate" type="number" inputMode="decimal" name="rate" autoComplete="off" min="0" step="0.01" value={form.rate} onChange={(e) => setForm((current) => ({ ...current, rate: e.target.value }))} required />
               </div>
               <div className="grid gap-2 md:col-span-2">
                 <Label htmlFor="interpreter-mercury-recipient-id">Mercury Recipient ID</Label>
                 <Input
                   id="interpreter-mercury-recipient-id"
+                  name="mercury_recipient_id"
+                  autoComplete="off"
                   value={form.mercury_recipient_id}
-                  placeholder="Enter Mercury recipient ID"
+                  placeholder="Enter Mercury recipient ID…"
                   onChange={(e) => setForm((current) => ({ ...current, mercury_recipient_id: e.target.value }))}
                 />
                 <p className="text-sm text-slate-500">Mercury recipient or bank account identifier used for payments.</p>
@@ -252,19 +254,19 @@ export function InterpreterForm({ mode = "create", interpreter = null }: Interpr
             <div className="grid gap-4 md:grid-cols-2">
               <div className="grid gap-2">
                 <Label htmlFor="propio-interpreter-id">Propio ID</Label>
-                <Input id="propio-interpreter-id" value={form.propio_interpreter_id} onChange={(e) => setForm((current) => ({ ...current, propio_interpreter_id: e.target.value }))} />
+                <Input id="propio-interpreter-id" name="propio_interpreter_id" autoComplete="off" value={form.propio_interpreter_id} onChange={(e) => setForm((current) => ({ ...current, propio_interpreter_id: e.target.value }))} />
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="big-interpreter-id">BIG ID</Label>
-                <Input id="big-interpreter-id" value={form.big_interpreter_id} onChange={(e) => setForm((current) => ({ ...current, big_interpreter_id: e.target.value }))} />
+                <Input id="big-interpreter-id" name="big_interpreter_id" autoComplete="off" value={form.big_interpreter_id} onChange={(e) => setForm((current) => ({ ...current, big_interpreter_id: e.target.value }))} />
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="equiti-voyce-id">Equity Voyce ID</Label>
-                <Input id="equiti-voyce-id" value={form.equiti_voyce_id} onChange={(e) => setForm((current) => ({ ...current, equiti_voyce_id: e.target.value }))} />
+                <Input id="equiti-voyce-id" name="equiti_voyce_id" autoComplete="off" value={form.equiti_voyce_id} onChange={(e) => setForm((current) => ({ ...current, equiti_voyce_id: e.target.value }))} />
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="equiti-martti-id">Equity Martti ID</Label>
-                <Input id="equiti-martti-id" value={form.equiti_martti_id} onChange={(e) => setForm((current) => ({ ...current, equiti_martti_id: e.target.value }))} />
+                <Input id="equiti-martti-id" name="equiti_martti_id" autoComplete="off" value={form.equiti_martti_id} onChange={(e) => setForm((current) => ({ ...current, equiti_martti_id: e.target.value }))} />
               </div>
             </div>
           </div>
@@ -273,7 +275,7 @@ export function InterpreterForm({ mode = "create", interpreter = null }: Interpr
 
           <div className="flex flex-wrap items-center gap-3">
             <Button type="submit" disabled={saving}>
-              {saving ? (mode === "edit" ? "Saving..." : "Creating...") : mode === "edit" ? "Save Changes" : "Create Interpreter"}
+              {saving ? (mode === "edit" ? "Saving…" : "Creating…") : mode === "edit" ? "Save Changes" : "Create Interpreter"}
             </Button>
             <Button type="button" variant="outline" onClick={() => router.push(mode === "edit" && interpreter ? `/interpreters/${interpreter.id}` : "/interpreters")}>
               Cancel

@@ -140,10 +140,10 @@ function buildPageButtons(currentPage: number, totalPages: number) {
   return [...pages]
     .filter((page) => page >= 1 && page <= totalPages)
     .sort((a, b) => a - b)
-    .reduce<(number | "...")[]>((acc, page) => {
+    .reduce<(number | "…")[]>((acc, page) => {
       const previous = acc[acc.length - 1];
       if (typeof previous === "number" && page - previous > 1) {
-        acc.push("...");
+        acc.push("…");
       }
       acc.push(page);
       return acc;
@@ -590,7 +590,7 @@ export function InterpreterManagementPage() {
 
   if (loading) {
     return (
-      <section className="grid w-full max-w-none gap-5">
+      <section className="grid w-full max-w-none gap-3">
         <div className="rounded-[28px] border border-slate-200 bg-[linear-gradient(135deg,_#08111f,_#132a41_52%,_#154c5d)] px-7 py-8 text-slate-50 shadow-[0_22px_60px_rgba(15,23,42,0.18)]">
           <div className="grid gap-4">
             <div className="h-4 w-40 animate-pulse rounded-full bg-white/15" />
@@ -612,64 +612,49 @@ export function InterpreterManagementPage() {
   }
 
   return (
-    <section className="grid w-full max-w-none gap-5">
-      <div className="rounded-[28px] border border-slate-200 bg-[linear-gradient(135deg,_#08111f,_#132a41_52%,_#154c5d)] px-7 py-8 text-slate-50 shadow-[0_22px_60px_rgba(15,23,42,0.18)]">
-        <div className="grid gap-6">
-          <div className="grid gap-4 lg:grid-cols-[1.2fr_1fr] lg:items-end">
-            <div>
-              <p className="eyebrow !text-cyan-200">Interpreter operations workspace</p>
-              <h1 className="mb-3 text-4xl font-semibold tracking-tight">Interpreter Management</h1>
-              <p className="max-w-3xl text-base leading-7 text-slate-200/80">
-                Review the CRM roster, track sync health, and prepare interpreters for larger operational workflows.
-              </p>
-            </div>
-            <div className="rounded-3xl border border-white/10 bg-white/8 px-4 py-4 backdrop-blur-sm">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div>
-                  <span className="block text-xs font-semibold uppercase tracking-[0.18em] text-cyan-100/70">CRM Sync</span>
-                  <strong className="mt-2 block text-lg text-white">{lastSyncLabel}</strong>
-                </div>
-                <div className="text-right text-sm text-cyan-50/80">
-                  <div>Synced records: {syncStatus?.synced_records ?? "Not available"}</div>
-                  <div>Errors: {syncStatus?.error_records ?? "Not available"}</div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
-            {stats.map((stat) => (
-              <div key={stat.label} className="rounded-3xl border border-white/10 bg-white/8 p-4 backdrop-blur-sm">
-                <span className="block text-xs font-semibold uppercase tracking-[0.18em] text-cyan-100/70">{stat.label}</span>
-                <strong className="mt-2 block text-3xl">{stat.value}</strong>
-              </div>
-            ))}
-          </div>
+    <section className="grid w-full max-w-none gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-[linear-gradient(135deg,_#08111f,_#132a41_52%,_#154c5d)] px-5 py-3.5 text-slate-50 shadow-sm">
+        <div className="flex items-center gap-4">
+          <h1 className="text-lg font-semibold tracking-tight">Interpreter Management</h1>
+          <span className="rounded-full border border-white/10 bg-white/8 px-3 py-1 text-xs font-medium text-cyan-100" style={{ fontVariantNumeric: "tabular-nums" }}>
+            {lastSyncLabel} • {syncStatus?.synced_records ?? 0} synced
+          </span>
+        </div>
+        <div className="flex gap-2" style={{ fontVariantNumeric: "tabular-nums" }}>
+          {stats.map((stat) => (
+            <span key={stat.label} className="rounded-full border border-white/10 bg-white/8 px-3 py-1 text-xs font-medium text-cyan-100">
+              {stat.label}: {stat.value}
+            </span>
+          ))}
         </div>
       </div>
 
       <div className="grid gap-3">
         <div className="flex flex-wrap items-center gap-3">
           <div className="relative min-w-[260px] flex-1">
-            <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
+            <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" aria-hidden="true" />
             <Input
               value={filters.search}
               onChange={(event) => setFilters((current) => ({ ...current, search: event.target.value }))}
-              placeholder="Search by name, employee ID, or email"
+              placeholder="Search by name, employee ID, or email…"
+              name="interpreter-search"
+              autoComplete="off"
+              aria-label="Search interpreters by name, employee ID, or email"
               className="h-11 rounded-xl border-slate-200 bg-white pl-9"
             />
           </div>
           <Button type="button" variant="outline" onClick={() => setShowFilters((current) => !current)}>
-            {showFilters ? <ChevronUp className="size-4" /> : <ChevronDown className="size-4" />}
+            {showFilters ? <ChevronUp className="size-4" aria-hidden="true" /> : <ChevronDown className="size-4" aria-hidden="true" />}
             {showFilters ? "Hide filters" : "Filter roster"}
           </Button>
           <div className="flex flex-wrap items-center gap-3">
             <Button type="button" variant="outline" onClick={() => void handleSyncFromCRM()} disabled={syncing}>
-              <RefreshCw className={`size-4 ${syncing ? "animate-spin" : ""}`} />
-              {syncing ? "Syncing..." : "Sync from CRM"}
+              <RefreshCw className={`size-4 ${syncing ? "animate-spin" : ""}`} aria-hidden="true" />
+              {syncing ? "Syncing…" : "Sync From CRM"}
             </Button>
             <Button type="button" variant="outline" onClick={() => void handleSyncMercuryRecipients()} disabled={mercurySyncing}>
-              <RefreshCw className={`size-4 ${mercurySyncing ? "animate-spin" : ""}`} />
-              {mercurySyncing ? "Syncing Mercury..." : "Sync Mercury Recipients"}
+              <RefreshCw className={`size-4 ${mercurySyncing ? "animate-spin" : ""}`} aria-hidden="true" />
+              {mercurySyncing ? "Syncing Mercury…" : "Sync Mercury Recipients"}
             </Button>
             <span className="text-sm text-slate-500">{lastSyncLabel}</span>
           </div>
@@ -758,7 +743,7 @@ export function InterpreterManagementPage() {
                 </div>
                 <div className="flex flex-wrap items-center gap-3">
                   <Button type="submit">
-                    <Search className="size-4" />
+                    <Search className="size-4" aria-hidden="true" />
                     Apply Filters
                   </Button>
                   <Button type="button" variant="outline" onClick={() => void handleResetFilters()}>
@@ -805,7 +790,7 @@ export function InterpreterManagementPage() {
                 <div className="text-sm font-medium text-slate-700">{selectedRowIds.length} interpreter{selectedRowIds.length === 1 ? "" : "s"} selected</div>
                 <div className="flex flex-wrap items-center gap-2">
                   <Button type="button" variant="outline" onClick={() => handlePlaceholderAction("Export selected will be wired once the bulk export flow is available.")}>
-                    <Download className="size-4" />
+                    <Download className="size-4" aria-hidden="true" />
                     Export selected
                   </Button>
                   <Button type="button" variant="outline" onClick={() => handlePlaceholderAction("Bulk status changes are not wired yet.")}>
@@ -823,7 +808,7 @@ export function InterpreterManagementPage() {
                 Column filters narrow the currently loaded roster rows directly from the table header.
               </div>
               <div className="flex flex-wrap items-center gap-3">
-                <span className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+                <span className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500" style={{ fontVariantNumeric: "tabular-nums" }}>
                   Showing {filteredRosterRows.length} of {interpreters.length} loaded rows
                 </span>
                 <Button type="button" variant="outline" onClick={clearRosterColumnFilters} disabled={!hasActiveColumnFilters}>
@@ -842,31 +827,32 @@ export function InterpreterManagementPage() {
               </div>
             ) : (
               <>
-                <div className="w-full overflow-auto rounded-2xl border border-slate-200">
-                  <table className="min-w-full text-sm">
+                <div className="w-full overflow-auto rounded-lg border border-slate-200">
+                  <table className="min-w-full text-xs">
                     <thead className="sticky top-0 z-10 bg-slate-100 text-left text-slate-600">
                       <tr className="border-b border-slate-200">
-                        <th className="px-4 py-3 font-medium">
+                        <th className="px-3 py-2 font-medium">
                           <input type="checkbox" checked={allRowsSelected} onChange={handleToggleAllRows} aria-label="Select all interpreters on this page" />
                         </th>
                         {visibleRosterColumns.map((column) => (
-                          <th key={column.key} className="px-4 py-3 whitespace-nowrap font-medium">
+                          <th key={column.key} className="px-3 py-2 whitespace-nowrap font-medium">
                             {column.label}
                           </th>
                         ))}
-                        <th className="px-4 py-3 text-right font-medium">Actions</th>
+                        <th className="px-3 py-2 text-right font-medium">Actions</th>
                       </tr>
                       <tr className="border-b border-slate-200 bg-slate-50/90 align-top">
-                        <th className="px-4 py-2" />
+                        <th className="px-3 py-1.5" />
                         {visibleRosterColumns.map((column) => (
-                          <th key={`${column.key}-filter`} className="px-4 py-2">
+                          <th key={`${column.key}-filter`} className="px-3 py-1.5">
                             {column.key === "employee_id" ? (
                               <input
                                 type="text"
                                 value={rosterColumnFilters.employeeId}
                                 onChange={(event) => updateRosterColumnFilter("employeeId", event.target.value)}
-                                placeholder="Search..."
-                                className="mt-1 h-8 w-full rounded-md border border-slate-200 bg-white px-2 text-xs font-normal text-slate-700 shadow-sm outline-none transition focus:border-slate-400"
+                                placeholder="Search…"
+                                aria-label="Filter by employee ID"
+                                className="h-7 w-full rounded-md border border-slate-200 bg-white px-2 text-xs font-normal text-slate-700 shadow-sm transition focus:border-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
                               />
                             ) : null}
                             {column.key === "full_name" ? (
@@ -874,8 +860,9 @@ export function InterpreterManagementPage() {
                                 type="text"
                                 value={rosterColumnFilters.fullName}
                                 onChange={(event) => updateRosterColumnFilter("fullName", event.target.value)}
-                                placeholder="Search..."
-                                className="mt-1 h-8 w-full rounded-md border border-slate-200 bg-white px-2 text-xs font-normal text-slate-700 shadow-sm outline-none transition focus:border-slate-400"
+                                placeholder="Search…"
+                                aria-label="Filter by full name"
+                                className="h-7 w-full rounded-md border border-slate-200 bg-white px-2 text-xs font-normal text-slate-700 shadow-sm transition focus:border-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
                               />
                             ) : null}
                             {column.key === "email" ? (
@@ -883,15 +870,17 @@ export function InterpreterManagementPage() {
                                 type="text"
                                 value={rosterColumnFilters.email}
                                 onChange={(event) => updateRosterColumnFilter("email", event.target.value)}
-                                placeholder="Search..."
-                                className="mt-1 h-8 w-full rounded-md border border-slate-200 bg-white px-2 text-xs font-normal text-slate-700 shadow-sm outline-none transition focus:border-slate-400"
+                                placeholder="Search…"
+                                aria-label="Filter by email"
+                                className="h-7 w-full rounded-md border border-slate-200 bg-white px-2 text-xs font-normal text-slate-700 shadow-sm transition focus:border-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
                               />
                             ) : null}
                             {column.key === "language" ? (
                               <select
                                 value={rosterColumnFilters.language}
                                 onChange={(event) => updateRosterColumnFilter("language", event.target.value)}
-                                className="mt-1 h-8 w-full rounded-md border border-slate-200 bg-white px-2 text-xs font-normal text-slate-700 shadow-sm outline-none transition focus:border-slate-400"
+                                aria-label="Filter by language"
+                                className="h-7 w-full rounded-md border border-slate-200 bg-white px-2 text-xs font-normal text-slate-700 shadow-sm transition focus:border-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
                               >
                                 <option value="">All</option>
                                 {languageOptions.map((option) => (
@@ -905,7 +894,8 @@ export function InterpreterManagementPage() {
                               <select
                                 value={rosterColumnFilters.location}
                                 onChange={(event) => updateRosterColumnFilter("location", event.target.value)}
-                                className="mt-1 h-8 w-full rounded-md border border-slate-200 bg-white px-2 text-xs font-normal text-slate-700 shadow-sm outline-none transition focus:border-slate-400"
+                                aria-label="Filter by location"
+                                className="h-7 w-full rounded-md border border-slate-200 bg-white px-2 text-xs font-normal text-slate-700 shadow-sm transition focus:border-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
                               >
                                 <option value="">All</option>
                                 {locationOptions.map((option) => (
@@ -919,7 +909,8 @@ export function InterpreterManagementPage() {
                               <select
                                 value={rosterColumnFilters.country}
                                 onChange={(event) => updateRosterColumnFilter("country", event.target.value)}
-                                className="mt-1 h-8 w-full rounded-md border border-slate-200 bg-white px-2 text-xs font-normal text-slate-700 shadow-sm outline-none transition focus:border-slate-400"
+                                aria-label="Filter by country"
+                                className="h-7 w-full rounded-md border border-slate-200 bg-white px-2 text-xs font-normal text-slate-700 shadow-sm transition focus:border-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
                               >
                                 <option value="">All</option>
                                 {countryOptions.map((option) => (
@@ -933,7 +924,8 @@ export function InterpreterManagementPage() {
                               <select
                                 value={rosterColumnFilters.client}
                                 onChange={(event) => updateRosterColumnFilter("client", event.target.value)}
-                                className="mt-1 h-8 w-full rounded-md border border-slate-200 bg-white px-2 text-xs font-normal text-slate-700 shadow-sm outline-none transition focus:border-slate-400"
+                                aria-label="Filter by associated client"
+                                className="h-7 w-full rounded-md border border-slate-200 bg-white px-2 text-xs font-normal text-slate-700 shadow-sm transition focus:border-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
                               >
                                 <option value="">All</option>
                                 {clientOptions.map((option) => (
@@ -947,7 +939,8 @@ export function InterpreterManagementPage() {
                               <select
                                 value={rosterColumnFilters.paymentFrequency}
                                 onChange={(event) => updateRosterColumnFilter("paymentFrequency", event.target.value)}
-                                className="mt-1 h-8 w-full rounded-md border border-slate-200 bg-white px-2 text-xs font-normal text-slate-700 shadow-sm outline-none transition focus:border-slate-400"
+                                aria-label="Filter by payment frequency"
+                                className="h-7 w-full rounded-md border border-slate-200 bg-white px-2 text-xs font-normal text-slate-700 shadow-sm transition focus:border-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
                               >
                                 <option value="">All</option>
                                 {meta.payment_frequency_options.map((option) => (
@@ -962,8 +955,9 @@ export function InterpreterManagementPage() {
                                 type="text"
                                 value={rosterColumnFilters.propioId}
                                 onChange={(event) => updateRosterColumnFilter("propioId", event.target.value)}
-                                placeholder="Search..."
-                                className="mt-1 h-8 w-full rounded-md border border-slate-200 bg-white px-2 text-xs font-normal text-slate-700 shadow-sm outline-none transition focus:border-slate-400"
+                                placeholder="Search…"
+                                aria-label="Filter by Propio ID"
+                                className="h-7 w-full rounded-md border border-slate-200 bg-white px-2 text-xs font-normal text-slate-700 shadow-sm transition focus:border-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
                               />
                             ) : null}
                             {column.key === "big_interpreter_id" ? (
@@ -971,8 +965,9 @@ export function InterpreterManagementPage() {
                                 type="text"
                                 value={rosterColumnFilters.bigId}
                                 onChange={(event) => updateRosterColumnFilter("bigId", event.target.value)}
-                                placeholder="Search..."
-                                className="mt-1 h-8 w-full rounded-md border border-slate-200 bg-white px-2 text-xs font-normal text-slate-700 shadow-sm outline-none transition focus:border-slate-400"
+                                placeholder="Search…"
+                                aria-label="Filter by BIG ID"
+                                className="h-7 w-full rounded-md border border-slate-200 bg-white px-2 text-xs font-normal text-slate-700 shadow-sm transition focus:border-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
                               />
                             ) : null}
                             {column.key === "equiti_voyce_id" ? (
@@ -980,8 +975,9 @@ export function InterpreterManagementPage() {
                                 type="text"
                                 value={rosterColumnFilters.equitiVoyceId}
                                 onChange={(event) => updateRosterColumnFilter("equitiVoyceId", event.target.value)}
-                                placeholder="Search..."
-                                className="mt-1 h-8 w-full rounded-md border border-slate-200 bg-white px-2 text-xs font-normal text-slate-700 shadow-sm outline-none transition focus:border-slate-400"
+                                placeholder="Search…"
+                                aria-label="Filter by Equity Voyce ID"
+                                className="h-7 w-full rounded-md border border-slate-200 bg-white px-2 text-xs font-normal text-slate-700 shadow-sm transition focus:border-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
                               />
                             ) : null}
                             {column.key === "equiti_martti_id" ? (
@@ -989,8 +985,9 @@ export function InterpreterManagementPage() {
                                 type="text"
                                 value={rosterColumnFilters.equitiMarttiId}
                                 onChange={(event) => updateRosterColumnFilter("equitiMarttiId", event.target.value)}
-                                placeholder="Search..."
-                                className="mt-1 h-8 w-full rounded-md border border-slate-200 bg-white px-2 text-xs font-normal text-slate-700 shadow-sm outline-none transition focus:border-slate-400"
+                                placeholder="Search…"
+                                aria-label="Filter by Equity Martti ID"
+                                className="h-7 w-full rounded-md border border-slate-200 bg-white px-2 text-xs font-normal text-slate-700 shadow-sm transition focus:border-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
                               />
                             ) : null}
                             {column.key === "mercury_recipient_id" ? (
@@ -998,15 +995,17 @@ export function InterpreterManagementPage() {
                                 type="text"
                                 value={rosterColumnFilters.mercuryRecipientId}
                                 onChange={(event) => updateRosterColumnFilter("mercuryRecipientId", event.target.value)}
-                                placeholder="Search..."
-                                className="mt-1 h-8 w-full rounded-md border border-slate-200 bg-white px-2 text-xs font-normal text-slate-700 shadow-sm outline-none transition focus:border-slate-400"
+                                placeholder="Search…"
+                                aria-label="Filter by Mercury recipient ID"
+                                className="h-7 w-full rounded-md border border-slate-200 bg-white px-2 text-xs font-normal text-slate-700 shadow-sm transition focus:border-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
                               />
                             ) : null}
                             {column.key === "status" ? (
                               <select
                                 value={rosterColumnFilters.status}
                                 onChange={(event) => updateRosterColumnFilter("status", event.target.value)}
-                                className="mt-1 h-8 w-full rounded-md border border-slate-200 bg-white px-2 text-xs font-normal text-slate-700 shadow-sm outline-none transition focus:border-slate-400"
+                                aria-label="Filter by status"
+                                className="h-7 w-full rounded-md border border-slate-200 bg-white px-2 text-xs font-normal text-slate-700 shadow-sm transition focus:border-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
                               >
                                 <option value="">All</option>
                                 {meta.status_options.map((option) => (
@@ -1018,7 +1017,7 @@ export function InterpreterManagementPage() {
                             ) : null}
                           </th>
                         ))}
-                        <th className="px-4 py-2" />
+                        <th className="px-3 py-1.5" />
                       </tr>
                     </thead>
                     <tbody>
@@ -1027,7 +1026,7 @@ export function InterpreterManagementPage() {
                           key={item.id}
                           className={`border-b border-slate-200 transition hover:bg-cyan-50/50 ${index % 2 === 0 ? "bg-white" : "bg-slate-50/60"}`}
                         >
-                          <td className="px-4 py-3 align-top">
+                          <td className="px-3 py-1.5 align-top">
                             <input
                               type="checkbox"
                               checked={selectedRowIds.includes(item.id)}
@@ -1036,45 +1035,39 @@ export function InterpreterManagementPage() {
                             />
                           </td>
                           {visibleRosterColumns.map((column) => (
-                            <td key={`${item.id}-${column.key}`} className={`px-4 py-3 align-top text-slate-700 ${column.cellClassName ?? ""}`.trim()}>
+                            <td key={`${item.id}-${column.key}`} className={`px-3 py-1.5 align-top text-slate-700 ${column.cellClassName ?? ""}`.trim()}>
                               {column.render(item)}
                             </td>
                           ))}
-                          <td className="px-4 py-3 align-top">
-                            <div className="flex flex-wrap justify-end gap-2">
-                              <Button
+                          <td className="px-3 py-1.5 align-middle">
+                            <div className="flex items-center justify-end gap-1">
+                              <button
                                 type="button"
-                                variant="ghost"
-                                size="icon"
-                                className="h-9 w-9 rounded-lg text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                                className="inline-flex size-6 items-center justify-center rounded text-slate-400 hover:bg-slate-100 hover:text-slate-700"
                                 aria-label="View profile"
                                 title="View profile"
                                 onClick={() => router.push(`/interpreters/${item.id}`)}
                               >
-                                <Eye className="size-4" />
-                              </Button>
-                              <Button
+                                <Eye className="size-3.5" aria-hidden="true" />
+                              </button>
+                              <button
                                 type="button"
-                                variant="ghost"
-                                size="icon"
-                                className="h-9 w-9 rounded-lg text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                                className="inline-flex size-6 items-center justify-center rounded text-slate-400 hover:bg-slate-100 hover:text-slate-700"
                                 aria-label="Edit interpreter"
                                 title="Edit interpreter"
                                 onClick={() => router.push(`/interpreters/${item.id}/edit`)}
                               >
-                                <Pencil className="size-4" />
-                              </Button>
-                              <Button
+                                <Pencil className="size-3.5" aria-hidden="true" />
+                              </button>
+                              <button
                                 type="button"
-                                variant="ghost"
-                                size="icon"
-                                className="h-9 w-9 rounded-lg text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                                className="inline-flex size-6 items-center justify-center rounded text-slate-400 hover:bg-slate-100 hover:text-slate-700"
                                 aria-label="Change status"
                                 title="Change status"
                                 onClick={() => handlePlaceholderAction(`Status update for ${item.full_name} is not wired yet.`)}
                               >
-                                <UserX className="size-4" />
-                              </Button>
+                                <UserX className="size-3.5" aria-hidden="true" />
+                              </button>
                             </div>
                           </td>
                         </tr>
@@ -1083,7 +1076,7 @@ export function InterpreterManagementPage() {
                   </table>
                 </div>
                 <div className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-slate-50/80 px-4 py-3 text-sm text-slate-600 sm:flex-row sm:items-center sm:justify-between">
-                  <div>
+                  <div style={{ fontVariantNumeric: "tabular-nums" }}>
                     Showing {pageStart}-{pageEnd} of {pagination.total} interpreters.
                   </div>
                   <div className="flex flex-wrap items-center gap-3">
@@ -1107,9 +1100,9 @@ export function InterpreterManagementPage() {
                     </Button>
                     <div className="flex items-center gap-2">
                       {pageButtons.map((pageButton, index) =>
-                        pageButton === "..." ? (
+                        pageButton === "…" ? (
                           <span key={`ellipsis-${index}`} className="px-1 text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">
-                            ...
+                            &hellip;
                           </span>
                         ) : (
                           <Button

@@ -120,19 +120,19 @@ button {
 .workspace-topbar {
   display: flex;
   justify-content: space-between;
-  gap: 18px;
+  gap: 12px;
   align-items: center;
-  padding: 22px 28px 18px;
+  padding: 12px 20px;
 }
 
 .workspace-topbar strong {
-  font-size: 1.35rem;
+  font-size: 1rem;
   color: #0f172a;
 }
 
 .workspace-topbar-label {
-  margin: 0 0 4px;
-  font-size: 12px;
+  margin: 0 0 2px;
+  font-size: 10px;
   text-transform: uppercase;
   letter-spacing: 0.16em;
   color: #64748b;
@@ -171,7 +171,7 @@ button {
 }
 
 .workspace-content {
-  padding: 0 28px 28px;
+  padding: 0 20px 20px;
 }
 
 .sidebar-v2 {
