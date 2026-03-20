@@ -1,0 +1,9 @@
+.env
+__pycache__/
+.claude/
+*.pyc
+
+*.csv
+*.jsonl
+*.txt
+*.xlsx
