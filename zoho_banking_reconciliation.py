@@ -17,6 +17,7 @@ API_BASE = "https://www.zohoapis.com/books/v3"
 TOKEN_URL = "https://accounts.zoho.com/oauth/v2/token"
 
 ZOHO_BANK_ACCOUNT_ID = os.getenv("ZOHO_BANK_ACCOUNT_ID", "").strip()
+ZOHO_BANK_ACCOUNT_NAME = os.getenv("ZOHO_BANK_ACCOUNT_NAME", "").strip()
 EMPLOYEE_ID_REGEX = os.getenv("EMPLOYEE_ID_REGEX", r"AS\d{4,6}")
 MATCH_THRESHOLD = float(os.getenv("BANK_MATCH_THRESHOLD", "1.10"))
 DATE_TOLERANCE_DAYS = int(os.getenv("DATE_TOLERANCE_DAYS", "7"))
@@ -129,6 +130,28 @@ def candidate_key(candidate):
     return (candidate["module"], candidate["record_id"])
 
 
+def normalize_account_name(value):
+    return normalize(value)
+
+
+def candidate_matches_bank_account(candidate, bank_account_id, bank_account_name):
+    candidate_account_id = str(candidate.get("bank_account_id", "") or "").strip()
+    candidate_account_name = normalize_account_name(candidate.get("bank_account_name", ""))
+    desired_account_name = normalize_account_name(bank_account_name)
+
+    if candidate_account_id and bank_account_id and candidate_account_id == bank_account_id:
+        return True
+    if candidate_account_name and desired_account_name and candidate_account_name == desired_account_name:
+        return True
+    return False
+
+
+def candidate_is_eligible_for_bank_account(candidate, bank_account_id, bank_account_name):
+    if candidate["module"] == "journal":
+        return True
+    return candidate_matches_bank_account(candidate, bank_account_id, bank_account_name)
+
+
 def module_to_transaction_type(module):
     mapping = {
         "vendorpayment": "vendor_payment",
@@ -165,6 +188,8 @@ def build_vendor_payment_rows(rows):
                 "payment_number": row.get("payment_number", ""),
                 "payment_mode": row.get("payment_mode", ""),
                 "reference_number": row.get("reference_number", ""),
+                "bank_account_id": row.get("paid_through_account_id", ""),
+                "bank_account_name": row.get("paid_through_account_name", ""),
                 "paid_through_account_name": row.get("paid_through_account_name", ""),
                 "bill_numbers": row.get("bill_numbers", ""),
                 "raw": row,
@@ -197,6 +222,9 @@ def build_expense_rows(rows):
                 "employee_id": extract_employee_id(reference_text),
                 "status": row.get("status", ""),
                 "reference_number": row.get("reference_number", ""),
+                "bank_account_id": "",
+                "bank_account_name": row.get("paid_through_account_name", ""),
+                "paid_through_account_name": row.get("paid_through_account_name", ""),
                 "account_name": row.get("account_name", ""),
                 "raw": row,
             }
@@ -245,6 +273,8 @@ def build_customer_payment_rows(rows):
                 "status": row.get("status", ""),
                 "payment_number": row.get("payment_number", ""),
                 "reference_number": row.get("reference_number", ""),
+                "bank_account_id": row.get("account_id", ""),
+                "bank_account_name": row.get("account_name", ""),
                 "raw": row,
             }
         )
@@ -276,6 +306,8 @@ def build_journal_rows(rows):
                 "status": row.get("status", ""),
                 "entry_number": row.get("entry_number", ""),
                 "reference_number": row.get("reference_number", ""),
+                "bank_account_id": "",
+                "bank_account_name": "",
                 "raw": row,
             }
         )
@@ -319,6 +351,20 @@ def fetch_matching_transactions(token, statement_id):
     return resp.json().get("matching_transactions", [])
 
 
+def fetch_bank_account_name(token, account_id):
+    if not account_id:
+        return ""
+
+    resp = requests.get(
+        f"{API_BASE}/bankaccounts/{account_id}",
+        headers=get_headers(token),
+        params={"organization_id": ORG_ID},
+        timeout=30,
+    )
+    resp.raise_for_status()
+    return str(resp.json().get("bankaccount", {}).get("account_name", "") or "")
+
+
 def resolve_existing_match_transaction_id(token, bank_txn, candidate):
     transaction_type = module_to_transaction_type(candidate["module"])
     if not transaction_type:
@@ -326,7 +372,7 @@ def resolve_existing_match_transaction_id(token, bank_txn, candidate):
 
     matches = fetch_matching_transactions(token, bank_txn["transaction_id"])
     desired_name = normalize(candidate["party_name"])
-    desired_amount = round(float(candidate["amount"]), 2)
+    desired_amount = round(float(bank_txn["amount"]), 2)
     desired_date = str(candidate["date"] or "")
 
     best_match_id = ""
@@ -342,8 +388,8 @@ def resolve_existing_match_transaction_id(token, bank_txn, candidate):
 
         if match_amount == desired_amount:
             score += 1.0
-        elif abs(match_amount - desired_amount) <= 1.0:
-            score += 0.5
+        else:
+            continue
 
         if desired_name and match_name == desired_name:
             score += 1.0
@@ -388,7 +434,10 @@ def apply_existing_match(token, bank_txn, candidate, existing_transaction_id):
         },
         timeout=30,
     )
-    resp.raise_for_status()
+    if resp.status_code >= 400:
+        raise RuntimeError(
+            f"Zoho match failed ({resp.status_code}): {resp.text}"
+        )
     return resp.json()
 
 
@@ -440,6 +489,38 @@ def choose_best_candidate(bank_txn, candidates):
             best_score = score
             best = candidate
     return best, best_score
+
+
+def build_candidate_pool(
+    direction,
+    used_candidates,
+    vendor_candidates,
+    expense_candidates,
+    customer_candidates,
+    journal_candidates,
+    bank_account_id,
+    bank_account_name,
+):
+    if direction == "debit":
+        ordered_candidates = vendor_candidates + expense_candidates + journal_candidates
+    elif direction == "credit":
+        ordered_candidates = (
+            vendor_candidates
+            + expense_candidates
+            + customer_candidates
+            + journal_candidates
+        )
+    else:
+        return []
+
+    return [
+        candidate
+        for candidate in ordered_candidates
+        if candidate_key(candidate) not in used_candidates
+        and candidate_is_eligible_for_bank_account(
+            candidate, bank_account_id, bank_account_name
+        )
+    ]
 
 
 def suggested_endpoint(module):
@@ -525,12 +606,17 @@ def main():
         raise ValueError("ZOHO_BANK_ACCOUNT_ID is required for banking reconciliation.")
 
     print("=" * 60)
-    print("ZOHO BANKING RECONCILIATION DRY RUN")
+    print("ZOHO BANKING RECONCILIATION")
     print("=" * 60)
 
     print("\n[1] Authenticating with Zoho Books...")
     token = get_access_token()
     print("    Access token obtained")
+
+    bank_account_name = ZOHO_BANK_ACCOUNT_NAME
+    if not bank_account_name:
+        bank_account_name = fetch_bank_account_name(token, ZOHO_BANK_ACCOUNT_ID)
+    print(f"    Target bank account: {bank_account_name} ({ZOHO_BANK_ACCOUNT_ID})")
 
     print("\n[2] Fetching uncategorized bank transactions...")
     bank_rows, bank_error = fetch_all_pages(
@@ -607,28 +693,16 @@ def main():
         )
         direction = bank_txn["direction"]
         description_looks_like_person = looks_like_person_name(bank_txn["description"])
-        if direction == "debit":
-            pool = [
-                c
-                for c in vendor_candidates + expense_candidates + journal_candidates
-                if candidate_key(c) not in used_candidates
-            ]
-        elif direction == "credit":
-            if description_looks_like_person:
-                pool = [
-                    c
-                    for c in customer_candidates
-                    + vendor_candidates
-                    + expense_candidates
-                    + journal_candidates
-                    if candidate_key(c) not in used_candidates
-                ]
-            else:
-                pool = [
-                    c for c in customer_candidates if candidate_key(c) not in used_candidates
-                ]
-        else:
-            pool = []
+        pool = build_candidate_pool(
+            direction,
+            used_candidates,
+            vendor_candidates,
+            expense_candidates,
+            customer_candidates,
+            journal_candidates,
+            ZOHO_BANK_ACCOUNT_ID,
+            bank_account_name,
+        )
 
         best, score = choose_best_candidate(bank_txn, pool)
         result = {
